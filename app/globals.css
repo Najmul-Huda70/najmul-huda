@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark theme (default) — RGB triplets so Tailwind alpha works */
+  --bg: 10 10 10;
+  --surface: 19 19 19;
+  --surface2: 27 27 27;
+  --border: 42 42 42;
+  --text: 242 242 240;
+  --text2: 154 154 148;
+  --text3: 107 107 102;
+  --accent: 217 164 65;
+  --primary: 242 242 240;
+  --primary-text: 10 10 10;
+}
+
+:root[data-theme="light"] {
+  --bg: 250 250 248;
+  --surface: 255 255 255;
+  --surface2: 241 240 236;
+  --border: 228 226 220;
+  --text: 20 20 18;
+  --text2: 92 91 85;
+  --text3: 140 139 133;
+  --accent: 185 121 31;
+  --primary: 20 20 18;
+  --primary-text: 250 250 248;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Reveal-on-scroll utility, toggled via IntersectionObserver in useReveal hook */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.35);
+}
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: rgb(var(--bg)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--accent)); }
+
+
