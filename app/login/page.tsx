@@ -1,17 +1,15 @@
 "use client";
 
 import { signIn } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +37,8 @@ export default function LoginForm() {
 
     try {
       const { data, error } = await signIn.email({
-        email: "contact.najmulhuda@gmail.com",
-        password: "najmul7ohuda" 
+        email: process.env.NEXT_PUBLIC_EMAIL as string,
+        password: process.env.NEXT_PUBLIC_EMAIL_PASS as string
       });
 
       if (error) {
