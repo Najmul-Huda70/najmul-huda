@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import type { Project } from "@/models/types";
 import Image from "next/image";
 
@@ -20,9 +21,10 @@ export default function ProjectCard({
   return (
     <div
       data-category={project.category}
-      className="group bg-surface border border-border rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:border-accent"
+      className="group h-full flex flex-col bg-surface border border-border rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:border-accent"
     >
-      <div className="relative h-[170px] bg-gradient-to-br from-surface2 to-border flex items-center justify-center overflow-hidden">
+      {/* Fixed-height media block — identical across every card regardless of source image */}
+      <div className="relative h-[170px] shrink-0 bg-gradient-to-br from-surface2 to-border flex items-center justify-center overflow-hidden">
         <span className="absolute top-3 left-3 bg-black/55 text-white text-[10px] tracking-[1px] px-2.5 py-1.5 rounded-full backdrop-blur-sm z-10">
           {STATUS_LABEL[project.status]}
         </span>
@@ -44,8 +46,12 @@ export default function ProjectCard({
           </span>
         )}
       </div>
-      <div className="px-[22px] py-5">
-        <h3 className="text-base mb-1">{project.title}</h3>
+
+      {/* flex-1 + flex-col lets this body fill remaining space equally,
+          and mt-auto below pins "View details" to the same bottom edge
+          on every card no matter how long the title/tags are. */}
+      <div className="px-[22px] py-5 flex flex-col flex-1">
+        <h3 className="text-base mb-1 line-clamp-2">{project.title}</h3>
         <div className="text-xs text-text3 mb-3.5">
           {project.type} · {project.year}
         </div>
@@ -55,7 +61,7 @@ export default function ProjectCard({
           </span>
           <span className="text-xs text-text2">{project.metricLabel}</span>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap mb-5 max-h-[62px] overflow-hidden">
           {project.tags.map((tag) => (
             <span
               key={tag}
@@ -65,6 +71,16 @@ export default function ProjectCard({
             </span>
           ))}
         </div>
+
+        <Link
+          href={`/w/${project.slug}`}
+          className="mt-auto flex items-center justify-between font-mono text-[11px] tracking-[1px] text-text2 pt-4 border-t border-border transition-colors group-hover:text-accent"
+        >
+          <span>VIEW DETAILS</span>
+          <span className="transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </Link>
       </div>
     </div>
   );

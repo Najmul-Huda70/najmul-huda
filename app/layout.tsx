@@ -30,9 +30,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Your Name — Developer & Competitive Programmer",
+  title: "Najmul Huda — Developer & Problem Solver",
   description:
-    "Full-stack developer and competitive programmer building fast, reliable web apps with Next.js and TypeScript, and solving algorithmic problems on Codeforces and LeetCode.",
+    "Full-stack developer and Problem Solver building fast, reliable web apps with Next.js and TypeScript, and solving algorithmic problems on Codeforces and LeetCode.",
 };
 
 export default function RootLayout({
