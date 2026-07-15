@@ -2,7 +2,7 @@ import type { ObjectId } from "mongodb";
 
 export type ProjectCategory = "web" | "cp" | "opensource";
 export interface Repository {
-  id:string;
+  id: string;
   label: string;
   url: string;
 }
@@ -33,13 +33,14 @@ export interface StatItem {
   order: number;
 }
 
+
 export interface TimelineEntry {
-  _id?: ObjectId;
-  role: string; // e.g. "SCHOOL · FIRST LINES OF CODE"
-  meta: string; // e.g. "SELF-TAUGHT · 2022"
-  heading: string; // e.g. "Where it began"
-  description: string;
+  _id?: string;
   order: number;
+  role: string; 
+  meta: string; 
+  heading: string; 
+  description: string;
 }
 
 export interface AboutTab {
