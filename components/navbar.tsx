@@ -17,45 +17,140 @@ const NAV_LINKS = [
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { data: session } = useSession();
   const pathname = usePathname();
   const user = session?.user;
 
   const isAdmin = user && session;
 
-  const activeLinks = isAdmin 
-    ? [...NAV_LINKS, { href: "/admin", label: "Admin" }] 
+  const activeLinks = isAdmin
+    ? [...NAV_LINKS, { href: "/admin", label: "Admin" }]
     : NAV_LINKS;
 
-  console.log("Session:", session, "User:", user, "isAdmin:", isAdmin);
-useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 8);
     };
-    handleScroll(); // run once on mount in case page loads already scrolled
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  return (
-    <nav  className={`sticky top-0 z-[100] flex items-center grain-bg justify-between gap-6 px-[6%] py-5 border-b bg-bg/70 backdrop-blur-md transition-colors duration-400 ${
-        scrolled ? "border-border" : "border-transparent"
-      }`}>
-      <Link href="/" className="font-serif italic text-lg text-text">
-        {SITE.name}.
-      </Link>
 
-      <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center gap-8 text-[13px] tracking-[0.3px]">
+  // close mobile menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // lock body scroll while mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  return (
+    <nav
+      className={`sticky top-0 z-[100] grain-bg bg-bg/70 backdrop-blur-md transition-colors duration-400 border-b ${
+        scrolled ? "border-border" : "border-transparent"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-6 px-[6%] py-5">
+        <Link href="/" className="font-serif italic text-lg text-text">
+          {SITE.name}.
+        </Link>
+
+        <div className="flex items-center gap-4">
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-8 text-[13px] tracking-[0.3px]">
+            {activeLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-colors duration-200 ${
+                    isActive
+                      ? "text-accent font-medium"
+                      : "text-text2 hover:text-text"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Desktop social icons */}
+          <div className="hidden sm:flex items-center gap-4">
+            <a
+              href={SITE.social.github}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <GithubIcon />
+            </a>
+            <a
+              href={SITE.social.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <LinkedinIcon />
+            </a>
+            <a
+              href={`mailto:${SITE.email}`}
+              aria-label="Email"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <MailIcon />
+            </a>
+          </div>
+
+          {/* Theme toggle — always visible */}
+          <button
+            id="theme-toggle"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="w-[34px] h-[34px] rounded-full border border-border flex items-center justify-center text-text text-sm hover:border-accent transition-colors shrink-0"
+          >
+            {theme === "dark" ? "◐" : "◑"}
+          </button>
+
+          {/* Hamburger — mobile only */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            className="md:hidden w-[34px] h-[34px] rounded-full border border-border flex items-center justify-center text-text hover:border-accent transition-colors shrink-0"
+          >
+            <MenuIcon open={menuOpen} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile slide-down panel */}
+      <div
+        className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out border-t ${
+          menuOpen
+            ? "max-h-[420px] opacity-100 border-border"
+            : "max-h-0 opacity-0 border-transparent"
+        }`}
+      >
+        <div className="flex flex-col px-[6%] py-6 gap-1">
           {activeLinks.map((link) => {
             const isActive = pathname === link.href;
-
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`transition-colors duration-200 ${
-                  isActive 
-                    ? "text-accent font-medium" 
+                className={`py-3 text-[15px] border-b border-border/40 transition-colors ${
+                  isActive
+                    ? "text-accent font-medium"
                     : "text-text2 hover:text-text"
                 }`}
               >
@@ -63,46 +158,56 @@ useEffect(() => {
               </Link>
             );
           })}
-        </div>
-        
-        <div className="hidden sm:flex items-center gap-4">
-           <a
-            href={SITE.social.github}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            className="text-text2 hover:text-accent transition-colors"
-          >
-            <GithubIcon /> 
-          </a>
-          <a
-            href={SITE.social.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-            className="text-text2 hover:text-accent transition-colors"
-          >
-            <LinkedinIcon />
-          </a>
-          <a
-            href={`mailto:${SITE.email}`}
-            aria-label="Email"
-            className="text-text2 hover:text-accent transition-colors"
-          >
-            <MailIcon />
-          </a>
-        </div>
 
-        <button
-          id="theme-toggle"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          className="w-[34px] h-[34px] rounded-full border border-border flex items-center justify-center text-text text-sm hover:border-accent transition-colors"
-        >
-          {theme === "dark" ? "◐" : "◑"}
-        </button>
+          <div className="flex items-center gap-5 pt-5">
+            <a
+              href={SITE.social.github}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <GithubIcon />
+            </a>
+            <a
+              href={SITE.social.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <LinkedinIcon />
+            </a>
+            <a
+              href={`mailto:${SITE.email}`}
+              aria-label="Email"
+              className="text-text2 hover:text-accent transition-colors"
+            >
+              <MailIcon />
+            </a>
+          </div>
+        </div>
       </div>
     </nav>
+  );
+}
+
+function MenuIcon({ open }: { open: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      {open ? (
+        <>
+          <line x1="5" y1="5" x2="19" y2="19" />
+          <line x1="19" y1="5" x2="5" y2="19" />
+        </>
+      ) : (
+        <>
+          <line x1="4" y1="7" x2="20" y2="7" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="4" y1="17" x2="20" y2="17" />
+        </>
+      )}
+    </svg>
   );
 }
 

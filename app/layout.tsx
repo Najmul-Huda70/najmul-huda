@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import Preloader from "@/components/preloader";
 import { Toaster } from "react-hot-toast";
 import '@/app/globals.css';
+import ContactSection from "@/components/contact-section";
 const serif = Newsreader({
   subsets: ["latin"],
   style: ["italic"],
@@ -52,6 +53,7 @@ export default function RootLayout({
           <Preloader />
           <Navbar />
           <main>{children}</main>
+          <ContactSection />
           <Footer />
         </ThemeProvider>
       </body>

@@ -8,7 +8,7 @@ import type { Project } from "@/models/types";
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({
-    headers:  headers(),
+    headers: headers(),
   });
 
   const user = session?.user;
@@ -18,17 +18,17 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const projects = await db.collection<Project>("projects").find().sort({year:-1}).toArray();
-  console.log(projects);
+const rawProjects = await db.collection<Project>("projects").find().sort({ year: -1 }).toArray();
+const projects: Project[] = JSON.parse(JSON.stringify(rawProjects));
   return (
-    <section className="px-[6%] py-16 max-w-[1180px] mx-auto min-h-[85vh]">
+    <section className="px-5 sm:px-[6%] py-14 sm:py-16 max-w-[1180px] mx-auto min-h-[85vh]">
       {/* header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/40 pb-8 mb-10">
         <div>
           <p className="font-mono text-[10px] tracking-[2px] text-accent uppercase mb-2">
             [ ADMIN CONSOLE ]
           </p>
-          <h1 className="font-serif italic text-[clamp(35px,5vw,50px)] text-text leading-none">
+          <h1 className="font-serif italic text-[clamp(28px,5vw,50px)] text-text leading-none">
             Manage your work.
           </h1>
           <p className="text-text2 text-xs mt-2 font-sans">
@@ -37,19 +37,21 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <Link
-          href="/admin/awf"
-          className="group inline-flex items-center gap-2 font-mono text-[13px] tracking-[0.5px] text-accent"
-        >
-          <span className="animate-blink">+</span>
-          <span className="border-b border-transparent group-hover:border-accent transition-colors">
-            Add work
-          </span>
-        </Link>
+        <div className="text-left md:text-right">
+          <Link
+            href="/admin/awf"
+            className="group inline-flex items-center gap-2 font-mono text-[13px] tracking-[0.5px] text-accent"
+          >
+            <span className="animate-blink">+</span>
+            <span className="border-b border-transparent group-hover:border-accent transition-colors">
+              Add work
+            </span>
+          </Link>
+        </div>
       </div>
 
       {projects.length === 0 ? (
-        <div className="py-20 text-center border border-dashed border-border/40 rounded-2xl">
+        <div className="py-16 sm:py-20 text-center border border-dashed border-border/40 rounded-2xl">
           <p className="font-mono text-xs text-text3">[ 00 / 00 ]</p>
           <h3 className="text-base text-text font-medium mt-2">
             No projects found in database
@@ -60,8 +62,8 @@ export default async function AdminPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {/* column labels — desktop only */}
-          <div className="hidden sm:grid grid-cols-[1fr_120px_90px_110px_140px] gap-4 px-6 font-mono text-[10px] tracking-wider text-text3 uppercase">
+          {/* column labels — desktop/tablet only */}
+          <div className="hidden md:grid grid-cols-[1fr_120px_90px_110px_140px] gap-4 px-6 font-mono text-[10px] tracking-wider text-text3 uppercase">
             <span>Project</span>
             <span>Category</span>
             <span>Year</span>
@@ -72,7 +74,7 @@ export default async function AdminPage() {
           {projects.map((project, index) => (
             <div
               key={index}
-              className="grid grid-cols-1 sm:grid-cols-[1fr_120px_90px_110px_140px] items-center gap-3 sm:gap-4 border border-border/60 rounded-xl bg-surface/10 backdrop-blur-sm px-5 sm:px-6 py-4 transition-colors hover:border-accent/30 hover:bg-surface2/10"
+              className="grid grid-cols-1 md:grid-cols-[1fr_120px_90px_110px_140px] items-start md:items-center gap-3 md:gap-4 border border-border/60 rounded-xl bg-surface/10 backdrop-blur-sm px-4 sm:px-5 md:px-6 py-4 transition-colors hover:border-accent/30 hover:bg-surface2/10"
             >
               {/* Project title + thumbnail */}
               <div className="flex items-center gap-3 min-w-0">
@@ -89,35 +91,49 @@ export default async function AdminPage() {
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-text truncate">
+                  <p className="font-medium text-text truncate text-sm sm:text-base">
                     {project.title}
                   </p>
-                  <p className="sm:hidden text-[10px] text-text3 mt-0.5 font-mono">
+                  <p className="md:hidden text-[10px] text-text3 mt-0.5 font-mono">
                     {project.category} • {project.year}
                   </p>
                 </div>
               </div>
 
               {/* Category */}
-              <div className="hidden sm:block text-text2 text-sm capitalize truncate">
+              <div className="hidden md:block text-text2 text-sm capitalize truncate">
                 {project.category}
               </div>
 
               {/* Year */}
-              <div className="hidden sm:block text-text2 font-mono text-xs">
+              <div className="hidden md:block text-text2 font-mono text-xs">
                 {project.year}
               </div>
 
-              {/* Featured toggle */}
-              <div>
+              {/* Featured toggle + mobile actions row */}
+              <div className="flex items-center justify-between md:justify-start gap-3 pl-[52px] md:pl-0">
                 <FeaturedToggle
                   projectId={project?._id?.toString() || ""}
                   featured={!!project.featured}
                 />
+
+                {/* Actions — mobile: inline with toggle, desktop: separate column */}
+                <div className="flex items-center gap-2.5 md:hidden">
+                  <Link
+                    href={`/admin/ew/${project.slug}`}
+                    className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
+                  >
+                    Edit
+                  </Link>
+                  <DeleteProjectBtn
+                    _id={project?._id?.toString() || ""}
+                    projectTitle={project.title}
+                  />
+                </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-start sm:justify-end gap-3">
+              {/* Actions — desktop only */}
+              <div className="hidden md:flex items-center justify-end gap-3">
                 <Link
                   href={`/admin/ew/${project.slug}`}
                   className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"

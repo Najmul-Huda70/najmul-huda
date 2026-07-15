@@ -7,8 +7,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-10 items-center px-[6%] pt-16 pb-10 max-w-[1180px] mx-auto min-h-[78vh]"
-    >
+      className="flex flex-col-reverse md:grid md:grid-cols-[1.1fr_1fr] gap-10 items-center px-[6%] md:pt-16 md:pb-10 max-w-[1180px] mx-auto min-h-[78vh]">
       <div>
         <div className="font-mono text-[11px] tracking-[2px] text-text3 mb-2">
           {SITE.location}

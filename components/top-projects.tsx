@@ -3,25 +3,11 @@ import type { Project } from "@/models/types";
 import ProjectCard from "@/components/project-card";
 import RevealSection from "@/components/reveal-section";
 import { db } from "@/lib/auth";
-import { ArrowBigRight, ArrowUpRight, MoveRight } from "lucide-react";
-const api = process.env.NEXT_PUBLIC_APP_URL;
-
-// async function getFeaturedProjects(): Promise<Project[]> {
-//   try {
-//     const res = await fetch(`${api}/api/projects?featured=true`, {
-//       next: { revalidate: 60 },
-//     });
-//     if (!res.ok) throw new Error("Failed to fetch");
-//     const result = await res.json();
-//     return result.data || [];
-//   } catch (err) {
-//     console.error("[TopProjects] failed to load projects:", err);
-//     return [];
-//   }
-// }
+import { MoveRight } from "lucide-react";
+import TopProjectsSkeleton from "./topProjectSkeleton";
+import { Suspense } from "react";
 
 export default async function TopProjects() {
-  // const projects = await getFeaturedProjects();
   const projects = await db
     .collection<Project>("projects")
     .find({ featured: true })
@@ -30,7 +16,8 @@ export default async function TopProjects() {
   const hasProjects = projects.length > 0;
 
   return (
-    <RevealSection
+    <Suspense fallback={<TopProjectsSkeleton />}>
+          <RevealSection
       id="projects"
       className="px-[6%] py-20 max-w-[1180px] mx-auto"
     >
@@ -59,7 +46,7 @@ export default async function TopProjects() {
             [ 00 / 00 ]
           </p>
           <h3 className="text-base text-text font-medium font-mono">
-            New builds coming soon
+            New featured builds coming soon
           </h3>
         </div>
       ) : (
@@ -72,5 +59,7 @@ export default async function TopProjects() {
         </>
       )}
     </RevealSection>
+      </Suspense>
+  
   );
 }

@@ -19,7 +19,7 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
   const [activeFilter, setActiveFilter] = useState<"all" | ProjectCategory>(
     "all",
   );
-  const {data:session} =useSession();
+  const { data: session } = useSession();
 
   const isAdmin = session && session?.user;
   const filteredProjects = useMemo(() => {
@@ -49,7 +49,7 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
 
     return Object.entries(groups).filter(([_, group]) => group.list.length > 0);
   }, [filteredProjects]);
-  
+
   return (
     <div className="space-y-12">
       <div className="border-b border-border/40 ">
@@ -74,35 +74,39 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
           </div>
         </div>
 
-        <div className="flex justify-between"><div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-[6%] px-[6%] sm:mx-0 sm:px-0 scrollbar-none">
-          {FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setActiveFilter(f.value)}
-              className={clsx(
-                "rounded-full px-5 py-2 text-xs border transition-all whitespace-nowrap font-sans",
-                activeFilter === f.value
-                  ? "bg-accent/20 text-accent border-accent/40 font-medium"
-                  : "border-border/60 text-text2 hover:border-accent/40 hover:text-text",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row justify-between">
+          <div className="flex flex-col  sm:flex-row gap-2 overflow-x-auto pb-3 mb-4 -mx-[6%] px-[6%] sm:mx-0 sm:px-0 scrollbar-none">
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setActiveFilter(f.value)}
+                className={clsx(
+                  "rounded-full px-5 py-2 text-xs border transition-all whitespace-nowrap font-sans",
+                  activeFilter === f.value
+                    ? "bg-accent/20 text-accent border-accent/40 font-medium"
+                    : "border-border/60 text-text2 hover:border-accent/40 hover:text-text",
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="text-right">
+            {isAdmin ? (
+              <Link
+                href={`admin/awf`}
+                className="group inline-flex items-center gap-2 font-mono text-[13px] tracking-[0.5px] text-accent"
+              >
+                <span className="animate-blink">+</span>
+                <span className="border-b border-transparent group-hover:border-accent transition-colors">
+                  Add work
+                </span>
+              </Link>
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
-        {isAdmin ? (
-          <Link
-            href={`admin/awf`}
-            className="group inline-flex items-center gap-2 font-mono text-[13px] tracking-[0.5px] text-accent"
-          >
-            <span className="animate-blink">+</span>
-            <span className="border-b border-transparent group-hover:border-accent transition-colors">
-              Add work
-            </span>
-          </Link>
-        ) : (
-          <></>
-        )}</div>
       </div>
 
       {filteredProjects.length === 0 ? (

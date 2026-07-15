@@ -116,31 +116,6 @@ export default function ServicesSection() {
           ))}
         </div>
       </div>
-
-      {/* CTA */}
-      <div className="bg-surface border border-border rounded-2xl px-6 py-10 sm:px-12 sm:py-14 text-center">
-        <h3 className="font-serif italic text-[clamp(24px,4vw,34px)] leading-[1.2] mb-4 text-text">
-          Have a project in mind?
-        </h3>
-        <p className="text-text2 text-[15px] mb-8 max-w-[460px] mx-auto leading-[1.75]">
-          Open to internships, freelance work, and short-term collaborations.
-          Tell me what you&apos;re building.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-3 items-center">
-          <Link
-            href="/#contact"
-            className="w-full sm:w-auto text-center px-6 py-3 rounded-full text-sm font-medium bg-primary text-primary-text hover:opacity-85 transition-opacity"
-          >
-            Start a conversation
-          </Link>
-          <Link
-            href="/work"
-            className="w-full sm:w-auto text-center px-6 py-3 rounded-full text-sm font-medium border border-border text-text hover:border-accent hover:text-accent transition-colors"
-          >
-            See past work
-          </Link>
-        </div>
-      </div>
     </RevealSection>
   );
 }
