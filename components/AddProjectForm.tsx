@@ -1,6 +1,6 @@
 "use client";
 
-import { createProject } from "@/lib/action_project";
+import { createProject } from "@/lib/action";
 import { useState } from "react";
 
 interface RepoField {

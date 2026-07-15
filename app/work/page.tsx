@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
         .find()
         .sort({ year: -1 })
         .toArray();
-        console.log('projects:',project);
+        // console.log('projects:',project);
          const projects: Project[] = JSON.parse(JSON.stringify(project));
   return (
     <section className="px-[6%] py-16 max-w-[1180px] mx-auto">

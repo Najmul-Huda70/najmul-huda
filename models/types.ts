@@ -1,6 +1,6 @@
 import type { ObjectId } from "mongodb";
 
-export type ProjectCategory = "web" | "cp" | "opensource";
+export type ProjectCategory = "web" | "app" | "client" | "opensource";
 export interface Repository {
   id: string;
   label: string;
@@ -27,9 +27,9 @@ export interface Project {
 }
 export interface StatItem {
   _id?: ObjectId;
-  key: string; // e.g. "cf_rating"
-  label: string; // e.g. "Codeforces rating"
-  value: string; // e.g. "1847"
+  key: string;
+  label: string; 
+  value: string; 
   order: number;
 }
 

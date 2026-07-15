@@ -6,22 +6,24 @@ import type { Project, ProjectCategory } from "@/models/types";
 import ProjectCard from "@/components/project-card";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
+import { getEmptyCategoryGroups, CATEGORY_LABELS } from "@/lib/category";
 
 const FILTERS: { label: string; value: "all" | ProjectCategory }[] = [
   { label: "All", value: "all" },
-  { label: "Web apps", value: "web" },
-  { label: "CP tools", value: "cp" },
-  { label: "Open source", value: "opensource" },
+  ...(Object.entries(CATEGORY_LABELS) as [ProjectCategory, string][]).map(
+    ([value, label]) => ({ label, value })
+  ),
 ];
 
 export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<"all" | ProjectCategory>(
-    "all",
+    "all"
   );
   const { data: session } = useSession();
 
   const isAdmin = session && session?.user;
+
   const filteredProjects = useMemo(() => {
     const q = query.trim().toLowerCase();
     return projects.filter((p) => {
@@ -35,11 +37,7 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
   }, [projects, query, activeFilter]);
 
   const groupedProjects = useMemo(() => {
-    const groups: Record<string, { label: string; list: Project[] }> = {
-      web: { label: "Web apps", list: [] },
-      cp: { label: "CP tools", list: [] },
-      opensource: { label: "Open source", list: [] },
-    };
+    const groups = getEmptyCategoryGroups();
 
     filteredProjects.forEach((project) => {
       if (groups[project.category]) {
@@ -47,9 +45,12 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
       }
     });
 
-    return Object.entries(groups).filter(([_, group]) => group.list.length > 0);
+    return Object.entries(groups).filter(
+      ([_, group]) => group.list.length > 0
+    );
   }, [filteredProjects]);
 
+  
   return (
     <div className="space-y-12">
       <div className="border-b border-border/40 ">
@@ -130,8 +131,7 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
                 </span>
               </div>
 
-              {/* প্রজেক্ট গ্রিড */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+\              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {group.list.map((project, i) => (
                   <ProjectCard key={project.slug} project={project} index={i} />
                 ))}
