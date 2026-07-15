@@ -24,12 +24,19 @@ export default async function Footer() {
           {isLogin ? (
             <LogoutButton />
           ) : (
+            <>
             <Link 
               href="/login" 
               className="hover:text-accent transition-colors duration-200 font-mono text-xs"
             >
               [ Admin Login ]
             </Link>
+            <Link 
+              href="/signup" 
+              className="hover:text-accent transition-colors duration-200 font-mono text-xs"
+            >
+              [ SignUp ]
+            </Link></>
           )}
         </div>
       </div>
