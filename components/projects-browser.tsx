@@ -131,7 +131,7 @@ export default function ProjectsBrowser({ projects }: { projects: Project[] }) {
               </div>
 
               {/* প্রজেক্ট গ্রিড */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {group.list.map((project, i) => (
                   <ProjectCard key={project.slug} project={project} index={i} />
                 ))}
