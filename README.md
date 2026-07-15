@@ -1,12 +1,11 @@
-# Your Name — Portfolio
+# Najmul Huda — Portfolio
 
 Full-stack developer & competitive-programmer portfolio, built with Next.js
-(App Router) + TypeScript + Tailwind CSS + MongoDB (native driver, no
-Mongoose) + JWT auth.
+(App Router) + TypeScript + Tailwind CSS + MongoDB  + JWT auth.
 
 ## Stack
 
-- **Frontend**: Next.js 14 App Router, TypeScript, Tailwind CSS, Recharts
+- **Frontend**: Next.js 16 App Router, TypeScript, Tailwind CSS, Recharts
 - **Backend**: Next.js Route Handlers (`app/api/**`), MongoDB native driver
   with a singleton `MongoClient` (`lib/mongodb.ts`)
 - **Auth**: JWT sessions (`jose`) protecting write endpoints; structured so it

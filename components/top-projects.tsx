@@ -2,25 +2,31 @@ import Link from "next/link";
 import type { Project } from "@/models/types";
 import ProjectCard from "@/components/project-card";
 import RevealSection from "@/components/reveal-section";
+import { db } from "@/lib/auth";
 
 const api = process.env.NEXT_PUBLIC_APP_URL;
 
-async function getFeaturedProjects(): Promise<Project[]> {
-  try {
-    const res = await fetch(`${api}/api/projects?featured=true`, {
-      next: { revalidate: 60 },
-    });
-    if (!res.ok) throw new Error("Failed to fetch");
-    const result = await res.json();
-    return result.data || [];
-  } catch (err) {
-    console.error("[TopProjects] failed to load projects:", err);
-    return [];
-  }
-}
+// async function getFeaturedProjects(): Promise<Project[]> {
+//   try {
+//     const res = await fetch(`${api}/api/projects?featured=true`, {
+//       next: { revalidate: 60 },
+//     });
+//     if (!res.ok) throw new Error("Failed to fetch");
+//     const result = await res.json();
+//     return result.data || [];
+//   } catch (err) {
+//     console.error("[TopProjects] failed to load projects:", err);
+//     return [];
+//   }
+// }
 
 export default async function TopProjects() {
-  const projects = await getFeaturedProjects();
+  // const projects = await getFeaturedProjects();
+   const projects = await db
+          .collection<Project>("projects")
+          .find({featured:true})
+          .sort({ year: -1 })
+          .toArray();
   const hasProjects = projects.length > 0;
 
   return (
