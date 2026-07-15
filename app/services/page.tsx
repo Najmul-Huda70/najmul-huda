@@ -134,7 +134,7 @@ export default function ServicesSection() {
             Start a conversation
           </Link>
           <Link
-            href="/projects"
+            href="/work"
             className="w-full sm:w-auto text-center px-6 py-3 rounded-full text-sm font-medium border border-border text-text hover:border-accent hover:text-accent transition-colors"
           >
             See past work

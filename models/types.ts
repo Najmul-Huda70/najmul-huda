@@ -1,25 +1,30 @@
 import type { ObjectId } from "mongodb";
 
 export type ProjectCategory = "web" | "cp" | "opensource";
-
+export interface Repository {
+  id:string;
+  label: string;
+  url: string;
+}
 export interface Project {
-  _id?: ObjectId;
+  _id: string;
   slug: string;
   title: string;
-  category: ProjectCategory;
-  status: "live" | "archived" | "in-progress";
+  status: string;
   year: number;
-  type: string; // e.g. "Personal project", "Team project", "Open source"
-  metricValue: string; // e.g. "300ms", "1.2k", "200+"
-  metricLabel: string; // e.g. "avg API response time"
-  tags: string[];
+  type: string;
+  category: string;
+  short_description: string;
   description: string;
-  liveUrl?: string;
-  repoUrl?: string;
-  featured: boolean; // shown in the homepage "Top Projects" grid
-  order: number; // manual sort order within featured grid
+  featured: boolean;
+  tags: string[];
+  image: string[];
+  repository: Repository[];
+  live: string;
+  metricValue?: string;
+  metricLabel?: string;
+  [key: string]: any;
 }
-
 export interface StatItem {
   _id?: ObjectId;
   key: string; // e.g. "cf_rating"

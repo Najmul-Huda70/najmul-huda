@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 import { SITE } from "@/lib/site-config";
 import { useSession } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -15,6 +16,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const [scrolled, setScrolled] = useState(false);
   const { data: session } = useSession();
   const pathname = usePathname();
   const user = session?.user;
@@ -26,9 +28,18 @@ export default function Navbar() {
     : NAV_LINKS;
 
   console.log("Session:", session, "User:", user, "isAdmin:", isAdmin);
-
+useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 8);
+    };
+    handleScroll(); // run once on mount in case page loads already scrolled
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
-    <nav className="sticky top-0 z-[100] flex items-center justify-between gap-6 px-[6%] py-5 border-b border-border bg-bg/70 backdrop-blur-md transition-colors duration-400">
+    <nav  className={`sticky top-0 z-[100] flex items-center grain-bg justify-between gap-6 px-[6%] py-5 border-b bg-bg/70 backdrop-blur-md transition-colors duration-400 ${
+        scrolled ? "border-border" : "border-transparent"
+      }`}>
       <Link href="/" className="font-serif italic text-lg text-text">
         {SITE.name}.
       </Link>

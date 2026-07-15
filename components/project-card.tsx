@@ -1,4 +1,5 @@
 import type { Project } from "@/models/types";
+import Image from "next/image";
 
 const STATUS_LABEL: Record<Project["status"], string> = {
   live: "● LIVE",
@@ -13,6 +14,7 @@ export default function ProjectCard({
   project: Project;
   index: number;
 }) {
+  // console.log(project);
   return (
     <div
       data-category={project.category}
@@ -25,7 +27,20 @@ export default function ProjectCard({
         <span className="absolute top-3 right-3.5 font-mono text-xs text-white/60">
           {String(index + 1).padStart(2, "0")}
         </span>
-        <span className="text-4xl text-text3">◈</span>
+       
+          {project.image[0] ? (
+            <Image
+              src={project.image[0]}
+              alt={project.title}
+              fill
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+            />
+          ) : (
+            <span className="text-4xl text-text3 flex items-center justify-center w-full h-full">
+              ◆
+            </span>
+          )}
+
       </div>
       <div className="px-[22px] py-5">
         <h3 className="text-base mb-1">{project.title}</h3>

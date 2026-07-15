@@ -1,28 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/auth";
-import { auth } from "@/lib/auth";
+import { auth, db } from "@/lib/auth";
 import { headers } from "next/headers";
-import type { Project } from "@/models/types";
 import DeleteProjectBtn from "@/components/DeleteProjectBtn";
-const api = process.env.NEXT_PUBLIC_APP_URL;
-async function getAllProjects(): Promise<Project[]> {
-  try {
-    const res = await fetch(`${api}/api/projects`, {
-      next: { revalidate: 10 },
-    });
-    if (!res.ok) throw new Error("Failed to fetch");
-    const result = await res.json();
-    return result.data || [];
-  } catch (err) {
-    console.error("[TopProjects] failed to load projects:", err);
-    return [];
-  }
-}
+import FeaturedToggle from "@/components/FeaturedToggle";
+import type { Project } from "@/models/types";
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers:  headers(),
   });
 
   const user = session?.user;
@@ -32,8 +18,8 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const projects = await getAllProjects();
-
+  const projects = await db.collection<Project>("projects").find().sort({year:-1}).toArray();
+  console.log(projects);
   return (
     <section className="px-[6%] py-16 max-w-[1180px] mx-auto min-h-[85vh]">
       {/* header */}
@@ -46,14 +32,13 @@ export default async function AdminPage() {
             Manage your work.
           </h1>
           <p className="text-text2 text-xs mt-2 font-sans">
-            Welcome back, {user?.name || "Admin"}. Create, edit, or remove your
-            showcase projects.
+            Welcome back, {user?.name || "Admin"}. Create, edit, or remove
+            your showcase projects.
           </p>
         </div>
 
-        {/* Add Work  */}
         <Link
-          href={`admin/awf`}
+          href="/admin/awf"
           className="group inline-flex items-center gap-2 font-mono text-[13px] tracking-[0.5px] text-accent"
         >
           <span className="animate-blink">+</span>
@@ -74,69 +59,78 @@ export default async function AdminPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto border border-border/60 rounded-xl bg-surface/10 backdrop-blur-sm">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border/60 font-mono text-[11px] tracking-wider text-text3 uppercase bg-surface2/20">
-                <th className="py-4 px-6">Project Title</th>
-                <th className="py-4 px-6 hidden sm:table-cell">Category</th>
-                <th className="py-4 px-6 hidden md:table-cell">Year</th>
-                <th className="py-4 px-6 hidden sm:table-cell">Featured</th>
-                <th className="py-4 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40 text-sm">
-              {projects.map((project,index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-surface2/10 transition-colors"
-                >
-                  
-                  <td className="py-4 px-6 font-medium text-text">
+        <div className="flex flex-col gap-3">
+          {/* column labels — desktop only */}
+          <div className="hidden sm:grid grid-cols-[1fr_120px_90px_110px_140px] gap-4 px-6 font-mono text-[10px] tracking-wider text-text3 uppercase">
+            <span>Project</span>
+            <span>Category</span>
+            <span>Year</span>
+            <span>Featured</span>
+            <span className="text-right">Actions</span>
+          </div>
+
+          {projects.map((project, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 sm:grid-cols-[1fr_120px_90px_110px_140px] items-center gap-3 sm:gap-4 border border-border/60 rounded-xl bg-surface/10 backdrop-blur-sm px-5 sm:px-6 py-4 transition-colors hover:border-accent/30 hover:bg-surface2/10"
+            >
+              {/* Project title + thumbnail */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 shrink-0 rounded-lg bg-surface2 border border-border/60 overflow-hidden flex items-center justify-center">
+                  {project.image?.[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={project.image[0]}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-text3 text-sm">◆</span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-text truncate">
                     {project.title}
-                    <span className="block sm:hidden text-[10px] text-text3 mt-0.5 font-mono">
-                      {project.category} • {project.year}
-                    </span>
-                  </td>
+                  </p>
+                  <p className="sm:hidden text-[10px] text-text3 mt-0.5 font-mono">
+                    {project.category} • {project.year}
+                  </p>
+                </div>
+              </div>
 
-                  <td className="py-4 px-6 text-text2 hidden sm:table-cell capitalize">
-                    {project.category}
-                  </td>
+              {/* Category */}
+              <div className="hidden sm:block text-text2 text-sm capitalize truncate">
+                {project.category}
+              </div>
 
-                  <td className="py-4 px-6 text-text2 font-mono text-xs hidden md:table-cell">
-                    {project.year}
-                  </td>
+              {/* Year */}
+              <div className="hidden sm:block text-text2 font-mono text-xs">
+                {project.year}
+              </div>
 
-                  <td className="py-4 px-6 hidden sm:table-cell">
-                    {project.featured ? (
-                      <span className="font-mono text-[10px] text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
-                        YES
-                      </span>
-                    ) : (
-                      <span className="font-mono text-[10px] text-text3">
-                        NO
-                      </span>
-                    )}
-                  </td>
+              {/* Featured toggle */}
+              <div>
+                <FeaturedToggle
+                  projectId={project?._id?.toString() || ""}
+                  featured={!!project.featured}
+                />
+              </div>
 
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <Link
-                        href={`/admin/edit/${project.slug}`}
-                        className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
-                      >
-                        Edit
-                      </Link>
-                      <DeleteProjectBtn
-                        _id={project?._id?.toString() || ""}
-                        projectTitle={project.title}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              {/* Actions */}
+              <div className="flex items-center justify-start sm:justify-end gap-3">
+                <Link
+                  href={`/admin/ew/${project.slug}`}
+                  className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
+                >
+                  Edit
+                </Link>
+                <DeleteProjectBtn
+                  _id={project?._id?.toString() || ""}
+                  projectTitle={project.title}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </section>

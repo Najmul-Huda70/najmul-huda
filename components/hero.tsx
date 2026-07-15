@@ -1,6 +1,7 @@
 import Link from "next/link";
-import ParticleCanvas from "@/components/particle-canvas";
 import { SITE } from "@/lib/site-config";
+import ParticleHeroImage from "./particle-canvas";
+import profilePhoto from "@/public/image/najmul2.png";
 
 export default function Hero() {
   return (
@@ -54,7 +55,7 @@ export default function Hero() {
         </Link>
       </div>
 
-      <ParticleCanvas />
+      <ParticleHeroImage src={profilePhoto} alt="Profile photo"  />
     </section>
   );
 }

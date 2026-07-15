@@ -2,7 +2,7 @@
 
 import { useReveal } from "@/lib/use-reveal";
 import Image from "next/image";
-// import profilePhoto from "@/public/profile.jpg"; // tomar photo
+import profilePhoto from "@/public/image/najmul.png";
 
 const SKILLS = [
   "Full Stack Dev",
@@ -25,13 +25,13 @@ export default function AboutSection() {
       <div className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-14 items-center">
         {/* LEFT — Photo card with location badge */}
         <div className="relative rounded-2xl overflow-hidden bg-surface2 aspect-[4/4.7]">
-          {/* <Image
+          <Image
             src={profilePhoto}
             alt="Profile photo"
             fill
             className="object-cover grayscale contrast-125 brightness-90"
             priority
-          /> */}
+          />
 
           {/* subtle dark gradient at bottom for badge readability */}
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 to-transparent" />
@@ -52,23 +52,20 @@ export default function AboutSection() {
           </div>
 
           <h2 className="font-serif italic text-[clamp(30px,4.2vw,44px)] leading-[1.2] mb-6 text-text">
-            I build for problems that
+            I build the web for problems
             <br />
-            deserve real solutions.
+            that deserve real solutions.
           </h2>
 
           <p className="text-text2 text-[15px] leading-[1.8] mb-5 max-w-[560px]">
-            I work across product engineering and algorithmic problem
-            solving — from designing APIs and data models to optimizing
-            solutions under tight time and memory limits, where clean code
-            meets contest-grade thinking.
+            Full-stack web development is my focus — from designing APIs and
+            data models to shipping clean, responsive interfaces in production.
           </p>
 
           <p className="text-text2 text-[15px] leading-[1.8] mb-8 max-w-[560px]">
-            Currently studying CSE, with real competitive programming
-            credentials — 1x ICPC Dhaka Regional and 2x IUPC — I bring the
-            same precision and problem-solving mindset to every product I
-            build.
+            Studying CSE, with a competitive programming background (1x ICPC
+            Dhaka Regional, 2x IUPC) that trained me to write efficient, precise
+            code — a mindset I carry into every product I build.
           </p>
 
           {/* Skill tags */}

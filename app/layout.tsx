@@ -42,8 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-      
-        className={`${serif.variable} ${sans.variable} ${mono.variable} font-sans antialiased`}
+        className={`${serif.variable} ${sans.variable} ${mono.variable} ')] grain-bg font-sans antialiased`}
       >
         <Toaster
   position="bottom-right"
