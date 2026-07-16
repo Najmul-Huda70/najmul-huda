@@ -9,14 +9,15 @@ import { ObjectId } from "mongodb";
 import type { Project, SkillTag } from "@/models/types";
 
 async function requireAdmin() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const reqHeaders = await headers();
+  const session = await auth.api.getSession({ headers: reqHeaders });
+  
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
   return session.user;
 }
 
-// ---- Toggle featured yes/no ----
 export async function toggleFeatured(
   projectId: string,
   currentValue: boolean
@@ -35,7 +36,6 @@ export async function toggleFeatured(
   revalidatePath("/admin");
 }
 
-// ---- Shared helper: build a project object from FormData ----
 function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
   const tags = (formData.get("tags") as string)
     .split(",")
@@ -72,7 +72,6 @@ function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
   } as Omit<Project, "_id">;
 }
 
-// ---- Create new project ----
 export async function createProject(formData: FormData) {
   await requireAdmin();
 
@@ -84,7 +83,6 @@ export async function createProject(formData: FormData) {
   redirect("/admin");
 }
 
-// ---- Update existing project (by _id) ----
 export async function updateProject(projectId: string, formData: FormData) {
   await requireAdmin();
 
@@ -99,7 +97,6 @@ export async function updateProject(projectId: string, formData: FormData) {
   revalidatePath("/admin");
 }
 
-// ---- Delete project ----
 export async function deleteProject(projectId: string) {
   await requireAdmin();
 
@@ -120,7 +117,6 @@ export async function getSkillTags(): Promise<SkillTag[]> {
   return JSON.parse(JSON.stringify(tags));
 }
 
-// ---- Add a new skill tag ----
 export async function addSkillTag(formData: FormData) {
   await requireAdmin();
 
@@ -144,7 +140,6 @@ export async function addSkillTag(formData: FormData) {
   revalidatePath("/admin/skills");
 }
 
-// ---- Delete a skill tag ----
 export async function deleteSkillTag(id: string) {
   await requireAdmin();
 
@@ -154,7 +149,6 @@ export async function deleteSkillTag(id: string) {
   revalidatePath("/admin/skills");
 }
 
-// ---- Get single project by _id (used by the edit page) ----
 export async function getProjectById(id: string): Promise<Project | null> {
   try {
     const project = await db
