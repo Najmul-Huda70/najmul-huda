@@ -10,6 +10,7 @@ import { CATEGORY_LABELS } from "@/lib/category";
 import CustomSelect from "./customSelect";
 import TagPicker from "./tagPicker";
 import ImageUploader from "./imageUploader";
+import DeleteProjectBtn2 from "./DeleteProjectBtn2";
 
 export default function EditProjectForm({
   project,
@@ -80,6 +81,11 @@ export default function EditProjectForm({
         setSubmitting(true);
         try {
           await updateProject(project._id?.toString() || "", formData);
+          toast.success("Project updated successfully.");
+          router.push("/admin");
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to update project.");
         } finally {
           setSubmitting(false);
         }
@@ -293,15 +299,11 @@ export default function EditProjectForm({
         >
           {submitting ? "Saving..." : "Save changes"}
         </button>
-
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={deleting}
-          className="px-6 py-3 rounded-full text-sm font-medium border border-red-500/30 text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-wait"
-        >
-          {deleting ? "Deleting..." : "Delete project"}
-        </button>
+        <DeleteProjectBtn2
+    _id={project._id?.toString() || ""}
+    projectTitle={project.title}
+    onDeleted={() => router.push("/admin")}
+  />
       </div>
     </form>
   );

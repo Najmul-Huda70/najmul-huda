@@ -1,41 +1,24 @@
 import { redirect, notFound } from "next/navigation";
-import { auth, db } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import type { Project } from "@/models/types";
 import EditProjectForm from "@/components/EditProjectForm";
-import { getSkillTags } from "@/lib/action";
-
-async function getProjectBySlug(slug: string): Promise<Project | null> {
-  try {
-    const project = await db.collection("projects").findOne({ slug: slug });
-
-    if (!project) return null;
-
-    return {
-      ...project,
-      _id: project._id.toString(),
-    } as unknown as Project;
-  } catch (err) {
-    console.error("[EditProject] failed to load project from DB:", err);
-    return null;
-  }
-}
+import { getSkillTags, getProjectById } from "@/lib/action";
 
 export default async function EditProjectPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: headers() });
   const user = session?.user;
 
   if (!user) {
     redirect("/");
   }
 
-  const { slug } = await params;
+  const { id } = await params;
   const [project, availableTags] = await Promise.all([
-    getProjectBySlug(slug),
+    getProjectById(id),
     getSkillTags(),
   ]);
 

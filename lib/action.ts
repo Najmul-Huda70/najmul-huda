@@ -64,8 +64,8 @@ function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
     metricLabel: (formData.get("metricLabel") as string) || undefined,
     tags,
     short_description: formData.get("short_description") as string,
-    description: formData.get("description") as string,
-    featured: formData.get("featured") === "true",
+    description: (formData.get("description") as string) || undefined,
+    featured: formData.get("featured") === "on",
     image: images,
     repository,
     live: (formData.get("live") as string) || undefined,
@@ -84,7 +84,7 @@ export async function createProject(formData: FormData) {
   redirect("/admin");
 }
 
-// ---- Update existing project ----
+// ---- Update existing project (by _id) ----
 export async function updateProject(projectId: string, formData: FormData) {
   await requireAdmin();
 
@@ -94,10 +94,9 @@ export async function updateProject(projectId: string, formData: FormData) {
 
   await db
     .collection<Project>("projects")
-    .updateOne({ _id: new ObjectId(projectId).toString() }, { $set: update });
+    .updateOne({ _id: new ObjectId(projectId) } as any, { $set: update });
 
   revalidatePath("/admin");
-  redirect("/admin");
 }
 
 // ---- Delete project ----
@@ -117,41 +116,56 @@ export async function getSkillTags(): Promise<SkillTag[]> {
     .find()
     .sort({ category: 1, order: 1 })
     .toArray();
- 
+
   return JSON.parse(JSON.stringify(tags));
 }
- 
+
 // ---- Add a new skill tag ----
 export async function addSkillTag(formData: FormData) {
   await requireAdmin();
- 
+
   const name = (formData.get("name") as string)?.trim();
   const slug = (formData.get("slug") as string)?.trim().toLowerCase();
   const category = formData.get("category") as string;
- 
+
   if (!name || !category) {
     throw new Error("Name and category are required");
   }
- 
+
   const tag: SkillTag = {
     name,
     slug: slug || name.toLowerCase().replace(/\s+/g, ""),
     category: category as SkillTag["category"],
   };
- 
+
   await db.collection<SkillTag>("tags").insertOne(tag as any);
- 
+
   revalidatePath("/");
   revalidatePath("/admin/skills");
 }
- 
+
 // ---- Delete a skill tag ----
 export async function deleteSkillTag(id: string) {
   await requireAdmin();
- 
-  const { ObjectId } = await import("mongodb");
+
   await db.collection("tags").deleteOne({ _id: new ObjectId(id) });
- 
+
   revalidatePath("/");
   revalidatePath("/admin/skills");
+}
+
+// ---- Get single project by _id (used by the edit page) ----
+export async function getProjectById(id: string): Promise<Project | null> {
+  try {
+    const project = await db
+      .collection("projects")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!project) return null;
+
+    return JSON.parse(JSON.stringify(project)) as Project;
+  } catch (err) {
+    console.error("[getProjectById] failed:", err);
+    return null;
+  }
 }

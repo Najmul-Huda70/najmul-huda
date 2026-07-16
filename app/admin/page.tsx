@@ -135,7 +135,7 @@ const projects: Project[] = JSON.parse(JSON.stringify(rawProjects));
               {/* Actions — desktop only */}
               <div className="hidden md:flex items-center justify-end gap-3">
                 <Link
-                  href={`/admin/ew/${project.slug}`}
+                  href={`/admin/ew/${project._id}`}
                   className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
                 >
                   Edit
