@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { updateProject, deleteProject } from "@/lib/action";
 import { useRouter } from "next/navigation";
-import type { Project, Repository } from "@/models/types";
+import type { Project, Repository, SkillTag } from "@/models/types";
+import type { ProjectCategory } from "@/models/types";
+import { CATEGORY_LABELS } from "@/lib/category";
+import CustomSelect from "./customSelect";
+import TagPicker from "./tagPicker";
+import ImageUploader from "./imageUploader";
 
-
-
-export default function EditProjectForm({ project }: { project: Project }) {
+export default function EditProjectForm({
+  project,
+  availableTags,
+}: {
+  project: Project;
+  availableTags: SkillTag[];
+}) {
   const router = useRouter();
   const [repos, setRepos] = useState<Repository[]>(
     project.repository && project.repository.length > 0
@@ -56,6 +66,17 @@ export default function EditProjectForm({ project }: { project: Project }) {
   return (
     <form
       action={async (formData) => {
+        const tagsRaw = (formData.get("tags") as string) || "";
+        const tagList = tagsRaw
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+
+        if (tagList.length < 1) {
+          toast.error("Select at least 1 tag.");
+          return;
+        }
+
         setSubmitting(true);
         try {
           await updateProject(project._id?.toString() || "", formData);
@@ -90,35 +111,42 @@ export default function EditProjectForm({ project }: { project: Project }) {
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Category">
-            <input
+            <CustomSelect
               name="category"
               required
               defaultValue={project.category}
-              className={inputClass}
+              placeholder="Select category"
+              options={(
+                Object.entries(CATEGORY_LABELS) as [ProjectCategory, string][]
+              ).map(([value, label]) => ({ value, label }))}
             />
           </Field>
           <Field label="Type">
-            <input
+            <CustomSelect
               name="type"
               required
               defaultValue={project.type}
-              className={inputClass}
+              placeholder="Select type"
+              options={[
+                { value: "personal", label: "Personal project" },
+                { value: "team", label: "Team project" },
+              ]}
             />
           </Field>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Status">
-            <select
+            <CustomSelect
               name="status"
               required
               defaultValue={project.status}
-              className={inputClass}
-            >
-              <option value="live">live</option>
-              <option value="in-progress">in-progress</option>
-              <option value="archived">archived</option>
-            </select>
+              options={[
+                { value: "live", label: "Live" },
+                { value: "progress", label: "In progress" },
+                { value: "archived", label: "Archived" },
+              ]}
+            />
           </Field>
           <Field label="Year">
             <input
@@ -169,7 +197,6 @@ export default function EditProjectForm({ project }: { project: Project }) {
         <Field label="Full description">
           <textarea
             name="description"
-            required
             rows={4}
             defaultValue={project.description}
             className={`${inputClass} resize-none`}
@@ -181,21 +208,17 @@ export default function EditProjectForm({ project }: { project: Project }) {
         <legend className="font-mono text-[11px] tracking-[2px] text-accent uppercase mb-1">
           [ Tags &amp; Media ]
         </legend>
-        <Field label="Tags (comma separated)">
-          <input
+
+        <Field label="Tags">
+          <TagPicker
             name="tags"
-            required
-            defaultValue={project.tags?.join(", ")}
-            className={inputClass}
+            availableTags={availableTags}
+            defaultSelected={project.tags || []}
           />
         </Field>
-        <Field label="Image URLs (comma separated)">
-          <input
-            name="image"
-            required
-            defaultValue={project.image?.join(", ")}
-            className={inputClass}
-          />
+
+        <Field label="Images">
+          <ImageUploader name="image" initialUrls={project.image || []} />
         </Field>
       </fieldset>
 

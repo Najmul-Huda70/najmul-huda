@@ -1,13 +1,14 @@
 import { redirect, notFound } from "next/navigation";
-import { auth, db } from "@/lib/auth"; 
+import { auth, db } from "@/lib/auth";
 import { headers } from "next/headers";
 import type { Project } from "@/models/types";
 import EditProjectForm from "@/components/EditProjectForm";
+import { getSkillTags } from "@/lib/action";
 
 async function getProjectBySlug(slug: string): Promise<Project | null> {
   try {
     const project = await db.collection("projects").findOne({ slug: slug });
-    
+
     if (!project) return null;
 
     return {
@@ -33,7 +34,10 @@ export default async function EditProjectPage({
   }
 
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  const [project, availableTags] = await Promise.all([
+    getProjectBySlug(slug),
+    getSkillTags(),
+  ]);
 
   if (!project) {
     notFound();
@@ -53,7 +57,7 @@ export default async function EditProjectPage({
         </p>
       </div>
 
-      <EditProjectForm project={project} />
+      <EditProjectForm project={project} availableTags={availableTags} />
     </section>
   );
 }

@@ -102,7 +102,7 @@ export default function AddProjectForm({
             required
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Contest Notifier"
+            placeholder="Enter your work/project title"
             className={inputClass}
           />
         </Field>
@@ -113,7 +113,7 @@ export default function AddProjectForm({
             required
             value={slug}
             onChange={(e) => handleSlugChange(e.target.value)}
-            placeholder="contest-notifier"
+            placeholder="Title to slug"
             className={inputClass}
           />
           <p className="text-[11px] text-text3 mt-0.5">
@@ -202,7 +202,7 @@ export default function AddProjectForm({
           <input
             name="short_description"
             required
-            placeholder="Instant Telegram alert system for CP contests."
+            placeholder="Short description here..."
             className={inputClass}
           />
         </Field>
@@ -210,7 +210,7 @@ export default function AddProjectForm({
           <textarea
             name="description"
             rows={4}
-            placeholder="A lightweight, automated Telegram bot that crawls upcoming contests..."
+            placeholder="Details description..."
             className={`${inputClass} resize-none`}
           />
         </Field>
@@ -246,14 +246,14 @@ export default function AddProjectForm({
                 name="repoLabel"
                 value={repo.label}
                 onChange={(e) => updateRepo(repo.id, "label", e.target.value)}
-                placeholder="Bot Repository"
+                placeholder="Repository label"
                 className={inputClass}
               />
               <input
                 name="repoUrl"
                 value={repo.url}
                 onChange={(e) => updateRepo(repo.id, "url", e.target.value)}
-                placeholder="https://github.com/you/repo"
+                placeholder="https://github.com/najmul-huda70/repo"
                 className={inputClass}
               />
               <button
@@ -278,7 +278,7 @@ export default function AddProjectForm({
         <Field label="Live URL">
           <input
             name="live"
-            placeholder="https://t.me/contest_notifier_bot"
+            placeholder="https://t.me/lms"
             className={inputClass}
           />
         </Field>
