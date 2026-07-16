@@ -8,7 +8,7 @@ import type { Project } from "@/models/types";
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({
-    headers: headers(),
+    headers: await headers(),
   });
 
   const user = session?.user;
