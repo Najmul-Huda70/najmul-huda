@@ -2,6 +2,13 @@
 
 import { createProject } from "@/lib/action";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { CATEGORY_LABELS } from "@/lib/category";
+import type { ProjectCategory, SkillTag } from "@/models/types";
+import TagPicker from "./tagPicker";
+import ImageUploader from "./imageUploader";
+import CustomSelect from "./customSelect";
+
 
 interface RepoField {
   id: string;
@@ -18,7 +25,11 @@ function slugify(title: string) {
     .replace(/-+/g, "-"); // collapse multiple hyphens
 }
 
-export default function AddProjectForm() {
+export default function AddProjectForm({
+  availableTags,
+}: {
+  availableTags: SkillTag[];
+}) {
   const [repos, setRepos] = useState<RepoField[]>([
     { id: crypto.randomUUID(), label: "", url: "" },
   ]);
@@ -59,6 +70,17 @@ export default function AddProjectForm() {
   return (
     <form
       action={async (formData) => {
+        const tagsRaw = (formData.get("tags") as string) || "";
+        const tagList = tagsRaw
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+
+        if (tagList.length < 1) {
+          toast.error("Add at least 1 tag.");
+          return;
+        }
+
         setSubmitting(true);
         try {
           await createProject(formData);
@@ -101,30 +123,40 @@ export default function AddProjectForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Category">
-            <input
+            <CustomSelect
               name="category"
               required
-              placeholder="cp"
-              className={inputClass}
+              placeholder="Select category"
+              options={(Object.entries(CATEGORY_LABELS) as [ProjectCategory, string][]).map(
+                ([value, label]) => ({ value, label })
+              )}
             />
           </Field>
           <Field label="Type">
-            <input
+            <CustomSelect
               name="type"
               required
-              placeholder="Open source"
-              className={inputClass}
+              placeholder="Select type"
+              options={[
+                { value: "personal", label: "Personal project" },
+                { value: "team", label: "Team project" },
+              ]}
             />
           </Field>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Status">
-            <select name="status" required className={inputClass}>
-              <option value="live">live</option>
-              <option value="in-progress">in-progress</option>
-              <option value="archived">archived</option>
-            </select>
+            <CustomSelect
+              name="status"
+              required
+              defaultValue="live"
+              options={[
+                { value: "live", label: "Live" },
+                { value: "progress", label: "In progress" },
+                { value: "archived", label: "Archived" },
+              ]}
+            />
           </Field>
           <Field label="Year">
             <input
@@ -177,7 +209,6 @@ export default function AddProjectForm() {
         <Field label="Full description">
           <textarea
             name="description"
-            required
             rows={4}
             placeholder="A lightweight, automated Telegram bot that crawls upcoming contests..."
             className={`${inputClass} resize-none`}
@@ -190,21 +221,12 @@ export default function AddProjectForm() {
         <legend className="font-mono text-[11px] tracking-[2px] text-accent uppercase mb-1">
           [ Tags &amp; Media ]
         </legend>
-        <Field label="Tags (comma separated)">
-          <input
-            name="tags"
-            required
-            placeholder="Node.js, Telegram API, MongoDB, Cron Jobs"
-            className={inputClass}
-          />
+        <Field label="Tags">
+          <TagPicker name="tags" availableTags={availableTags} />
         </Field>
-        <Field label="Image URLs (comma separated)">
-          <input
-            name="image"
-            required
-            placeholder="https://images.unsplash.com/photo-..."
-            className={inputClass}
-          />
+
+        <Field label="Images">
+          <ImageUploader name="image" />
         </Field>
       </fieldset>
 
@@ -267,6 +289,7 @@ export default function AddProjectForm() {
         <input
           type="checkbox"
           name="featured"
+          defaultChecked={false}
           className="w-4 h-4 accent-accent"
         />
         <span className="text-sm text-text2">Mark as featured</span>

@@ -1,8 +1,5 @@
-// Adjust this import path so it points to the file where you export `db`
-// (the same `db` you pass into mongodbAdapter inside auth.ts).
 import { db } from "@/lib/auth";
-import type { Project } from "@/models/types";
-
+import type { Project, ProjectCategory } from "@/models/types";
 
 const COLLECTION = "projects";
 
@@ -15,7 +12,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
 }
 
 export async function getRelatedProjects(
-  category: string,
+  category: ProjectCategory,   // ⚠️ string থেকে বদলে দিলাম
   excludeSlug: string,
   limit = 2
 ): Promise<Project[]> {

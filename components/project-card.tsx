@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import type { Project } from "@/models/types";
+import type { Project, ProjectStatus } from "@/models/types";
 import Image from "next/image";
 
-const STATUS_LABEL: Record<Project["status"], string> = {
+const STATUS_LABEL: Record<ProjectStatus, string> = {
   live: "● LIVE",
+  progress: "IN PROGRESS",
   archived: "ARCHIVED",
-  "in-progress": "IN PROGRESS",
 };
 
 export default function ProjectCard({
@@ -23,7 +23,6 @@ export default function ProjectCard({
       data-category={project.category}
       className="group h-full flex flex-col bg-surface border border-border rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:border-accent"
     >
-      {/* Fixed-height media block — identical across every card regardless of source image */}
       <div className="relative h-[170px] shrink-0 bg-gradient-to-br from-surface2 to-border flex items-center justify-center overflow-hidden">
         <span className="absolute top-3 left-3 bg-black/55 text-white text-[10px] tracking-[1px] px-2.5 py-1.5 rounded-full backdrop-blur-sm z-10">
           {STATUS_LABEL[project.status]}
@@ -47,9 +46,6 @@ export default function ProjectCard({
         )}
       </div>
 
-      {/* flex-1 + flex-col lets this body fill remaining space equally,
-          and mt-auto below pins "View details" to the same bottom edge
-          on every card no matter how long the title/tags are. */}
       <div className="px-[22px] py-5 flex flex-col flex-1">
         <h3 className="text-base mb-1 line-clamp-2">{project.title}</h3>
         <div className="text-xs text-text3 mb-3.5">

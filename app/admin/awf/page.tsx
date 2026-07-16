@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import AddProjectForm from "@/components/AddProjectForm";
+import { getSkillTags } from "@/lib/action";
 
 
 export default async function AddProjectPage() {
@@ -11,6 +12,8 @@ export default async function AddProjectPage() {
   if (!user) {
     redirect("/");
   }
+
+  const availableTags = await getSkillTags();
 
   return (
     <section className="px-[6%] py-16 max-w-[1180px] mx-auto min-h-[85vh]">
@@ -26,7 +29,7 @@ export default async function AddProjectPage() {
         </p>
       </div>
 
-      <AddProjectForm />
+      <AddProjectForm availableTags={availableTags} />
     </section>
   );
 }

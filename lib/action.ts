@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
-import type { Project } from "@/models/types";
+import type { Project, SkillTag } from "@/models/types";
 
 async function requireAdmin() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -109,4 +109,49 @@ export async function deleteProject(projectId: string) {
   await db.collection("projects").deleteOne({ _id: new ObjectId(projectId) });
 
   revalidatePath("/admin");
+}
+
+export async function getSkillTags(): Promise<SkillTag[]> {
+  const tags = await db
+    .collection<SkillTag>("tags")
+    .find()
+    .sort({ category: 1, order: 1 })
+    .toArray();
+ 
+  return JSON.parse(JSON.stringify(tags));
+}
+ 
+// ---- Add a new skill tag ----
+export async function addSkillTag(formData: FormData) {
+  await requireAdmin();
+ 
+  const name = (formData.get("name") as string)?.trim();
+  const slug = (formData.get("slug") as string)?.trim().toLowerCase();
+  const category = formData.get("category") as string;
+ 
+  if (!name || !category) {
+    throw new Error("Name and category are required");
+  }
+ 
+  const tag: SkillTag = {
+    name,
+    slug: slug || name.toLowerCase().replace(/\s+/g, ""),
+    category: category as SkillTag["category"],
+  };
+ 
+  await db.collection<SkillTag>("tags").insertOne(tag as any);
+ 
+  revalidatePath("/");
+  revalidatePath("/admin/skills");
+}
+ 
+// ---- Delete a skill tag ----
+export async function deleteSkillTag(id: string) {
+  await requireAdmin();
+ 
+  const { ObjectId } = await import("mongodb");
+  await db.collection("tags").deleteOne({ _id: new ObjectId(id) });
+ 
+  revalidatePath("/");
+  revalidatePath("/admin/skills");
 }
