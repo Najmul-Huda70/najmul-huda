@@ -75,3 +75,71 @@ export interface SkillTag {
   category: SkillCategory;
   order?: number;
 }
+
+export interface CategoryItem {
+  _id?: string;
+  type: "work" | "blog";
+  label: string;
+  slug: string;
+  description?: string;
+  order?: number;
+}
+
+export interface BlogPost {
+  _id: string;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  coverImage?: string;
+  tags: string[];
+  publishedAt: string;
+  readTime?: string;
+  published: boolean;
+  featured?: boolean;
+}
+
+export interface EducationItem {
+  _id?: string;
+  degree: string;
+  institution: string;
+  fieldOfStudy?: string;
+  period: string;
+  description?: string;
+  grade?: string;
+  order?: number;
+}
+
+export interface SkillItem {
+  _id?: string;
+  name: string;
+  category: string;
+  percentage: number;
+  icon?: string;
+  subtitle?: string;
+  order?: number;
+}
+
+export interface ExperienceItem {
+  _id?: string;
+  role: string;
+  company: string;
+  location?: string;
+  period: string;
+  description: string;
+  techStack?: string[];
+  order?: number;
+}
+
+export interface CertificateItem {
+  _id?: string;
+  title: string;
+  issuer: string;
+  issueDate: string;
+  credentialUrl?: string;
+  credentialId?: string;
+  image?: string;
+  description?: string;
+  order?: number;
+}

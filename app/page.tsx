@@ -1,7 +1,8 @@
-import Hero from "@/components/hero";
-import AboutSection from "@/components/about-section";
-import TopProjects from "@/components/top-projects";
-import JourneySection from "@/components/JourneySection";
+import Hero from "@/components/pages/Hero";
+import AboutSection from "@/components/pages/AboutSection";
+import TopProjects from "@/components/pages/TopProjects";
+import StatsSection from "@/components/pages/StatsSection";
+import JourneySection from "@/components/pages/JourneySection";
 
 
 export default function HomePage() {
@@ -10,7 +11,8 @@ export default function HomePage() {
       <Hero />
       <AboutSection />
       <TopProjects />
-    <JourneySection/>
+      <StatsSection />
+      <JourneySection />
     </>
   );
 }

@@ -176,7 +176,7 @@ export default function RegisterForm() {
 
           {/* Error Message */}
           {error && (
-            <p className="text-xs text-red-500 font-mono mt-2">{error}</p>
+            <p className="text-xs text-accent font-mono mt-2">{error}</p>
           )}
 
           {/* Submit Button */}

@@ -121,7 +121,7 @@ export default function LoginForm() {
 
           {/* Error Message */}
           {error && (
-            <p className="text-xs text-red-500 font-mono mt-2">
+            <p className="text-xs text-accent font-mono mt-2">
               {error}
             </p>
           )}

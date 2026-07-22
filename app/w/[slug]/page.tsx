@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Calendar, Layers } from "lucide-react";
-import { getProjectBySlug, getRelatedProjects } from "@/components/workDetails";
-import ImageSlider from "@/components/ImageSlider";
+import { getProjectBySlug, getRelatedProjects } from "@/lib/workDetails";
+import ImageSlider from "@/components/shared/ImageSlider";
 import { categoryLabel } from "@/lib/category";
 
 
@@ -32,11 +32,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       */}
       <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20 lg:px-8">
         <Link
-          href="/projects"
+          href="/work"
           className="inline-flex items-center gap-2 text-sm text-[rgb(var(--text2))] transition-colors hover:text-[rgb(var(--text))]"
         >
           <ArrowLeft size={16} />
-          All projects
+          All work
         </Link>
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.05fr,1fr] lg:gap-14">
@@ -55,7 +55,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <span className="flex items-center gap-1.5">
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    project.status === "live" ? "bg-emerald-400" : "bg-[rgb(var(--text3))]"
+                    project.status === "live" ? "bg-[rgb(var(--accent))]" : "bg-[rgb(var(--text3))]"
                   }`}
                 />
                 {project.status}
@@ -145,12 +145,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               {related.map((p) => (
                 <Link
                   key={p.slug}
-                  href={`/projects/${p.slug}`}
+                  href={`/w/${p.slug}`}
                   className="group rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5 transition-colors hover:border-[rgb(var(--accent))]"
                 >
                   <div className="flex items-center justify-between text-xs uppercase tracking-wider text-[rgb(var(--text3))]">
                     <span className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          p.status === "live" ? "bg-[rgb(var(--accent))]" : "bg-[rgb(var(--text3))]"
+                        }`}
+                      />
                       {p.status}
                     </span>
                     <span>{p.year}</span>

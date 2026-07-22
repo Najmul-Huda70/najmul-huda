@@ -1,7 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import EditProjectForm from "@/components/EditProjectForm";
+import EditProjectForm from "@/components/forms/EditProjectForm";
 import { getSkillTags, getProjectById } from "@/lib/action";
 
 export default async function EditProjectPage({

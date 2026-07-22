@@ -1,5 +1,5 @@
 import Link from "next/link";
-import RevealSection from "@/components/reveal-section";
+import RevealSection from "@/components/shared/RevealSection";
 
 const SERVICES = [
   {

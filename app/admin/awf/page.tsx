@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import AddProjectForm from "@/components/AddProjectForm";
+import AddProjectForm from "@/components/forms/AddProjectForm";
 import { getSkillTags } from "@/lib/action";
 
 

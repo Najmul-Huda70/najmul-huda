@@ -1,0 +1,76 @@
+"use client";
+
+import Image from "next/image";
+import profilePhoto from "@/public/image/najmul.png";
+import { RevealOnScroll, StaggerContainer, StaggerItem } from "@/components/ui/MotionWrapper";
+
+const SKILLS = [
+  "Full Stack Dev",
+  "Problem Solving",
+  "Next.js",
+  "TypeScript",
+  "System Design",
+  "Competitive Programming",
+];
+
+export default function AboutSection() {
+  return (
+    <section id="about" className="px-[6%] py-20 max-w-[1180px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-14 items-center">
+        {/* LEFT — Photo card */}
+        <RevealOnScroll delay={0.1}>
+          <div className="relative rounded-2xl overflow-hidden bg-surface2 aspect-[4/4.7]">
+            <Image
+              src={profilePhoto}
+              alt="Profile photo"
+              fill
+              className="object-cover grayscale contrast-125 brightness-90"
+              priority
+            />
+            <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-5 left-5 bg-accent text-[rgb(var(--accent-text))] rounded-xl px-4 py-2.5 shadow-lg">
+              <p className="font-serif italic text-sm leading-none">Mymensingh</p>
+              <p className="font-mono text-[10px] tracking-wider mt-1 opacity-70">
+                BANGLADESH
+              </p>
+            </div>
+          </div>
+        </RevealOnScroll>
+
+        {/* RIGHT — Text content */}
+        <div>
+          <RevealOnScroll delay={0.15}>
+            <div className="font-mono text-[11px] tracking-[2px] text-accent mb-3">
+              [ ABOUT ]
+            </div>
+            <h2 className="font-serif italic text-[clamp(30px,4.2vw,44px)] leading-[1.2] mb-6 text-text">
+              I build the web for problems
+              <br />
+              that deserve real solutions.
+            </h2>
+            <p className="text-text2 text-[15px] leading-[1.8] mb-5 max-w-[560px]">
+              Full-stack web development is my focus — from designing APIs and
+              data models to shipping clean, responsive interfaces in production.
+            </p>
+            <p className="text-text2 text-[15px] leading-[1.8] mb-8 max-w-[560px]">
+              Studying CSE, with a competitive programming background (1x ICPC
+              Dhaka Regional, 2x IUPC) that trained me to write efficient,
+              precise code — a mindset I carry into every product I build.
+            </p>
+          </RevealOnScroll>
+
+          {/* Skill tags */}
+          <StaggerContainer className="flex gap-2.5 flex-wrap" staggerDelay={0.07}>
+            {SKILLS.map((skill) => (
+              <StaggerItem key={skill}>
+                <span className="px-4 py-2 rounded-full text-[12px] border border-border text-text2 hover:border-accent hover:text-text transition-colors cursor-default">
+                  {skill}
+                </span>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
+      </div>
+    </section>
+  );
+}
