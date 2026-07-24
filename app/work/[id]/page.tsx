@@ -89,9 +89,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
           <div className="absolute inset-0 bg-[rgb(var(--accent)/0.28)] opacity-0 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-100" />
 
           <div className="absolute bottom-0 left-0 right-0 px-[5%] sm:px-[6%] pb-2 sm:pb-5 z-10">
-            <h1 className="text-[rgb(var(--text))] text-2xl xs:text-3xl sm:text-5xl font-bold mb-2 leading-tight max-w-3xl">
-              {work.title}
-            </h1>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-3 text-[9px] xs:text-[10px] sm:text-xs font-mono text-[rgb(var(--text2))]">
               <span className="text-[rgb(var(--accent))] uppercase font-semibold tracking-wider">
                 {work.category}
@@ -137,10 +134,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
 
       {/* ===== BODY ===== */}
       <article className="w-full px-[5%] sm:px-[6%] py-3 sm:py-5 space-y-8">
-        <p className="text-text2 text-sm sm:text-base max-w-2xl">
-          {work.short_description}
-        </p>
-
         {/* Metric + links */}
         <div className="flex flex-wrap items-center gap-4">
           {work.metricValue && (
@@ -150,17 +143,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
               </span>
               <span className="text-xs text-text2">{work.metricLabel}</span>
             </div>
-          )}
-          {work.githubUrl && (
-            <a
-              href={work.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1.5 rounded-full border border-border/60 text-text2 hover:text-accent hover:border-accent/40 transition-colors"
-            >
-              <FolderGit2 size={13} />
-              Repository
-            </a>
           )}
         </div>
 
