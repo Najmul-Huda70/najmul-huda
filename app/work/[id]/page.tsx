@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Tag, FolderGit2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import { getWorkById, getWorks } from "@/lib/action";
 import { toRawGithubUrl } from "@/lib/github-md";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import Image from "next/image";
 import type { Work } from "@/models/types";
+import BlogHeroSlider from "@/components/shared/BlogHeroSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -59,92 +59,53 @@ export default async function WorkDetailPage({ params }: PageProps) {
     .filter((w) => w._id !== work._id && w.category === work.category)
     .slice(0, 2);
 
+  const heroImages = work.image && work.image.length > 0 ? work.image : [];
+
   return (
     <main className="min-h-screen w-full">
-      {/* ===== HERO SECTION ===== */}
-      {work.image?.[0] ? (
-        <section
-          className="group relative w-full overflow-hidden"
-          style={{ height: "clamp(320px, 100dvh, 1000px)" }}
+      {/* ===== HERO — contained within the page column, not full-bleed ===== */}
+      <div className="px-[6%] max-w-[1180px] mx-auto pt-6">
+        <Link
+          href="/work"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-text2 mb-4"
         >
-          <Link
-            href="/work"
-            className="absolute top-2 sm:top-3 px-[5%] sm:px-[6%] z-20 inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-text2"
-          >
-            <ArrowLeft size={14} />
-            <span> Back to Work</span>
-          </Link>
+          <ArrowLeft size={14} />
+          <span>Back to Work</span>
+        </Link>
 
-          <Image
-            src={work.image[0]}
-            alt={work.title}
-            fill
-            unoptimized
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_15%] xs:object-[center_20%] sm:object-[center_30%] md:object-[center_40%] lg:object-center transition-transform duration-500 group-hover:scale-105"
-          />
-
-          <div className="absolute inset-0 bg-gradient-to-t from-[rgb(var(--bg)/0.85)] via-[rgb(var(--bg)/0.25)] to-transparent" />
-          <div className="absolute inset-0 bg-[rgb(var(--accent)/0.28)] opacity-0 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-100" />
-
-          <div className="absolute bottom-0 left-0 right-0 px-[5%] sm:px-[6%] pb-2 sm:pb-5 z-10">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-3 text-[9px] xs:text-[10px] sm:text-xs font-mono text-[rgb(var(--text2))]">
-              <span className="text-[rgb(var(--accent))] uppercase font-semibold tracking-wider">
-                {work.category}
-              </span>
-              <span className="hidden xs:inline">&middot;</span>
-              <span className="flex items-center gap-1">
-                <Calendar size={12} className="shrink-0" />
-                {work.year}
-              </span>
-              <span className="hidden xs:inline">&middot;</span>
-              <span className="capitalize">{work.type}</span>
-            </div>
+        {heroImages.length > 0 && (
+          <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px] rounded-2xl overflow-hidden mb-6">
+            <BlogHeroSlider images={heroImages} title={work.title} />
           </div>
-        </section>
-      ) : (
-        <section className="group relative w-full">
-          <Link
-            href="/work"
-            className="top-3 px-[5%] sm:px-[6%] z-20 inline-flex items-center gap-2 text-sm font-mono text-text2"
-          >
-            <ArrowLeft size={14} />
-            <span> Back to Work</span>
-          </Link>
-          <div className="inset-0 z-10 flex flex-col items-center justify-center text-center px-[5%] mt-8 sm:mt-12">
-            <h1 className="text-[rgb(var(--text))] text-2xl xs:text-3xl sm:text-5xl font-bold mb-4 leading-tight max-w-3xl">
-              {work.title}
-            </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono text-[rgb(var(--text2))]">
-              <span className="text-[rgb(var(--accent))] uppercase font-semibold tracking-wider">
-                {work.category}
-              </span>
-              <span>&middot;</span>
-              <span className="flex items-center gap-1">
-                <Calendar size={13} />
-                {work.year}
-              </span>
-              <span>&middot;</span>
-              <span className="capitalize">{work.type}</span>
-            </div>
-          </div>
-        </section>
-      )}
+        )}
+
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:text-xs font-mono text-text2 mb-3">
+          <span className="text-accent uppercase font-semibold tracking-wider">
+            {work.category}
+          </span>
+          <span>&middot;</span>
+          <span className="flex items-center gap-1">
+            <Calendar size={12} />
+            {work.year}
+          </span>
+          <span>&middot;</span>
+          <span className="capitalize">{work.type}</span>
+        </div>
+
+
+      </div>
 
       {/* ===== BODY ===== */}
-      <article className="w-full px-[5%] sm:px-[6%] py-3 sm:py-5 space-y-8">
+      <article className="w-full px-[6%] max-w-[1180px] mx-auto py-3 sm:py-5 space-y-8">
         {/* Metric + links */}
-        <div className="flex flex-wrap items-center gap-4">
-          {work.metricValue && (
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-lg text-accent font-medium">
-                {work.metricValue}
-              </span>
-              <span className="text-xs text-text2">{work.metricLabel}</span>
-            </div>
-          )}
-        </div>
+        {work.metricValue && (
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono text-lg text-accent font-medium">
+              {work.metricValue}
+            </span>
+            <span className="text-xs text-text2">{work.metricLabel}</span>
+          </div>
+        )}
 
         {content && (
           <div className="markdown-body">

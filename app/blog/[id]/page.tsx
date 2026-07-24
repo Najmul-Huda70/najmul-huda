@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import Image from "next/image";
 import type { BlogPost } from "@/models/types";
+import BlogHeroSlider from "@/components/shared/BlogHeroSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -66,105 +67,55 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const relatedPosts = allPosts
     .filter((p: BlogPost) => p._id !== post._id)
     .slice(0, 2);
-
-  return (
-    <main className="min-h-screen w-full">
-      {/* ===== HERO SECTION — fully responsive, full-viewport ===== */}
-      {post.coverImage ? (
-        <section
-          className="group relative w-full overflow-hidden"
-          style={{ height: "clamp(320px, 100dvh, 1000px)" }}
-        >
-          <Link
-            href="/blog"
-            className="absolute top-2 sm:top-3 px-[5%] sm:px-[6%] z-20 inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-text2"
-          >
-            <ArrowLeft size={14} />
-            <span> Back to Blog</span>
-          </Link>
-
-          {/* Cover image as background */}
-          <Image
-            src={post.coverImage}
-            alt={post.title}
-            fill
-            unoptimized
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_15%] xs:object-[center_20%] sm:object-[center_30%] md:object-[center_40%] lg:object-center transition-transform duration-500 group-hover:scale-105"
-          />
-
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[rgb(var(--bg)/0.85)] via-[rgb(var(--bg)/0.25)] to-transparent" />
-
-          {/* Hover color overlay */}
-          <div className="absolute inset-0 bg-[rgb(var(--accent)/0.28)] opacity-0 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-100" />
-
-          {/* meta overlay */}
-          <div className="absolute bottom-0 left-0 right-0 px-[5%] sm:px-[6%] pb-2 sm:pb-5 z-10">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-3 text-[9px] xs:text-[10px] sm:text-xs font-mono text-[rgb(var(--text2))]">
-              <span className="text-[rgb(var(--accent))] uppercase font-semibold tracking-wider">
-                {post.category}
-              </span>
-              <span className="hidden xs:inline">&middot;</span>
-              <span className="flex items-center gap-1">
-                <Calendar size={12} className="shrink-0" />
-                {new Date(post.publishedAt || Date.now()).toLocaleDateString(
-                  "en-US",
-                  { month: "long", day: "numeric", year: "numeric" },
-                )}
-              </span>
-              {post.readTime && (
-                <>
-                  <span className="hidden xs:inline">&middot;</span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} className="shrink-0" />
-                    {post.readTime}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section className="group relative w-full">
-          <Link
-            href="/blog"
-            className="top-3 px-[5%] sm:px-[6%] z-20 inline-flex items-center gap-2 text-sm font-mono text-text2"
-          >
-            <ArrowLeft size={14} />
-            <span> Back to Blog</span>
-          </Link>
-          <div className="inset-0 z-10 flex flex-col items-center justify-center text-center px-[5%] mt-8 sm:mt-12">
-            <h1 className="text-[rgb(var(--text))] text-2xl xs:text-3xl sm:text-5xl font-bold mb-4 leading-tight max-w-3xl">
-              {post.title}
-            </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs font-mono text-[rgb(var(--text2))]">
-              <span className="text-[rgb(var(--accent))] uppercase font-semibold tracking-wider">
-                {post.category}
-              </span>
-              <span>&middot;</span>
-              <span className="flex items-center gap-1">
-                <Calendar size={13} />
-                {new Date(post.publishedAt || Date.now()).toLocaleDateString(
-                  "en-US",
-                  { month: "long", day: "numeric", year: "numeric" },
-                )}
-              </span>
-              {post.readTime && (
-                <>
-                  <span>&middot;</span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={13} />
-                    {post.readTime}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </section>
+ 
+const heroImages =
+  post.images && post.images.length > 0
+    ? post.images
+    : post.coverImage
+      ? [post.coverImage]
+      : [];
+ 
+return (
+  <main className="min-h-screen w-full">
+    <div className="px-[6%] max-w-[1180px] mx-auto pt-6">
+      <Link
+        href="/blog"
+        className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-text2 mb-4"
+      >
+        <ArrowLeft size={14} />
+        <span>Back to Blog</span>
+      </Link>
+ 
+      {heroImages.length > 0 && (
+        <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px] rounded-2xl overflow-hidden mb-6">
+          <BlogHeroSlider images={heroImages} title={post.title} />
+        </div>
       )}
+ 
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:text-xs font-mono text-text2 mb-3">
+        <span className="text-accent uppercase font-semibold tracking-wider">
+          {post.category}
+        </span>
+        <span>&middot;</span>
+        <span className="flex items-center gap-1">
+          <Calendar size={12} />
+          {new Date(post.publishedAt || Date.now()).toLocaleDateString(
+            "en-US",
+            { month: "long", day: "numeric", year: "numeric" }
+          )}
+        </span>
+        {post.readTime && (
+          <>
+            <span>&middot;</span>
+            <span className="flex items-center gap-1">
+              <Clock size={12} />
+              {post.readTime}
+            </span>
+          </>
+        )}
+      </div>
 
+    </div>
       {/* ===== ARTICLE BODY ===== */}
       <article className="w-full px-[5%] sm:px-[6%] py-3 sm:py-5 space-y-8">
         <div className="markdown-body">
