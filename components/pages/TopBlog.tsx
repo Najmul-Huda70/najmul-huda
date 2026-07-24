@@ -6,14 +6,13 @@ import { RevealOnScroll, StaggerContainer, StaggerItem } from "@/components/ui/M
 import TopBlogSkeleton from "./TopBlogSkeleton";
 import BlogCard from "./BlogCard";
 import { getBlogPosts } from "@/lib/action";
-
+import type { BlogPost } from "@/models/types";
 const MAX_POSTS = 6;
-
 export default async function TopBlog() {
   const allPosts = await getBlogPosts();
   const posts = allPosts
-    .filter((p) => p.published !== false)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .filter((p: { published: boolean }) => p.published !== false)
+    .sort((a: { date: string }, b: { date: string }) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, MAX_POSTS);
   const hasPosts = posts.length > 0;
 
@@ -55,8 +54,8 @@ export default async function TopBlog() {
           </RevealOnScroll>
         ) : (
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-            {posts.map((post) => (
-              <StaggerItem key={post.slug}>
+            {posts.map((post: BlogPost) => (
+              <StaggerItem key={post._id}>
                 <BlogCard post={post} />
               </StaggerItem>
             ))}
