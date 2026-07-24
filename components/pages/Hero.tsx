@@ -73,7 +73,9 @@ export default function Hero() {
       </div>
 
       <FadeIn delay={0.3} className="w-full flex justify-center">
-        <ParticleHeroImage/>
+        <div className="relative w-full max-w-[420px] h-[420px] md:h-[500px] rounded-2xl overflow-hidden">
+          <ParticleHeroImage />
+        </div>
       </FadeIn>
     </section>
   );

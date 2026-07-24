@@ -17,7 +17,7 @@ export default function ParticleHeroImage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mouseRef = useRef({ x: -9999, y: -9999 });
-
+  console.log('Profile Photo: ',ProfilePhoto ? "True":"false");
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;

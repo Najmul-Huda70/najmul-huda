@@ -3,6 +3,7 @@ import AboutSection from "@/components/pages/AboutSection";
 import TopWork from "@/components/pages/TopWork";
 import StatsSection from "@/components/pages/StatsSection";
 import JourneySection from "@/components/pages/JourneySection";
+import TopBlog from "@/components/pages/TopBlog";
 
 
 export default function HomePage() {
@@ -11,8 +12,10 @@ export default function HomePage() {
       <Hero />
       <AboutSection />
       <TopWork />
+      <TopBlog />
       <StatsSection />
       <JourneySection />
+      
     </>
   );
 }
