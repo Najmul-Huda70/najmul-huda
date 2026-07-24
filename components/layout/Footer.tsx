@@ -4,7 +4,6 @@ import Link from "next/link";
 import LogoutButton from "@/components/shared/LogoutButton"; // ক্লায়েন্ট বাটনটি ইমপোর্ট করুন
 
 export default async function Footer() {
-  // headers()-এর আগে await যুক্ত করা হয়েছে
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -31,12 +30,7 @@ export default async function Footer() {
             >
               [ Admin Login ]
             </Link>
-            <Link 
-              href="/signup" 
-              className="hover:text-accent transition-colors duration-200 font-mono text-xs"
-            >
-              [ SignUp ]
-            </Link></>
+            </>
           )}
         </div>
       </div>
