@@ -126,7 +126,7 @@ export default function BlogBrowser({ posts, categories }: BlogBrowserProps) {
         ) : (
           <motion.div
             key="grid"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -135,6 +135,7 @@ export default function BlogBrowser({ posts, categories }: BlogBrowserProps) {
             {filteredPosts.map((post, i) => (
               <motion.div
                 key={post._id}
+                className="h-full"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
