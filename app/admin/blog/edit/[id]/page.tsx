@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getBlogPostById, updateBlogPost, getCategories } from "@/lib/action";
 import { ArrowLeft } from "lucide-react";
+import { ImageUploader } from "@/components/forms";
 
 export const dynamic = "force-dynamic";
 
@@ -54,11 +55,14 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
           Edit Blog Post.
         </h1>
         <p className="text-text2 text-xs sm:text-sm mt-1 font-sans">
-          Update article content, category, or publish settings.
+          Content is always pulled live from GitHub — nothing is stored here.
         </p>
       </div>
 
-      <form action={handleSubmit} className="space-y-6 bg-surface/30 border border-border/60 p-6 sm:p-8 rounded-2xl backdrop-blur-sm">
+      <form
+        action={handleSubmit}
+        className="space-y-6 bg-surface/30 border border-border/60 p-6 sm:p-8 rounded-2xl backdrop-blur-sm"
+      >
         {/* Title */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
@@ -73,20 +77,9 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
           />
         </div>
 
-        {/* Slug */}
-        <div className="space-y-1.5">
-          <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Custom Slug
-          </label>
-          <input
-            type="text"
-            name="slug"
-            defaultValue={post.slug}
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent font-mono text-xs"
-          />
-        </div>
-
-        {/* Category */}
+        {/* Category — only real categories from the DB, same as Add page.
+            defaultValue falls back to the post's saved category so an old/renamed
+            category still shows correctly if it's still in the list. */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
             Category *
@@ -97,10 +90,11 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
             required
             className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent capitalize"
           >
-            <option value="tech">Tech & Engineering</option>
-            <option value="design">Design & UI/UX</option>
-            <option value="tutorial">Tutorial</option>
-            <option value="general">General & Thoughts</option>
+            {blogCategories.length === 0 && (
+              <option value={post.category} disabled>
+                No blog categories found — add one in Atlas
+              </option>
+            )}
             {blogCategories.map((cat: any) => (
               <option key={cat._id} value={cat.slug}>
                 {cat.label}
@@ -112,26 +106,27 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
         {/* Excerpt */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Short Excerpt / Summary
+            Short Excerpt / Summary *
           </label>
           <textarea
             name="excerpt"
             rows={2}
+            required
             defaultValue={post.excerpt}
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent"
+            placeholder="Brief introduction displayed on article cards..."
+            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent"
           />
         </div>
 
-        {/* Cover Image URL */}
+        {/* Cover Image — same ImageUploader as the Add page, pre-filled with the existing image */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Cover Image URL
+            Cover Image (Optional)
           </label>
-          <input
-            type="text"
+          <ImageUploader
             name="coverImage"
-            defaultValue={post.coverImage || ""}
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent"
+            initialUrls={post.coverImage ? [post.coverImage] : []}
+            maxImages={1}
           />
         </div>
 
@@ -162,18 +157,23 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
           </div>
         </div>
 
-        {/* Content */}
+        {/* GitHub source — required, content always fetched live from here */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Article Content *
+            GitHub Markdown URL *
           </label>
-          <textarea
-            name="content"
-            rows={12}
-            defaultValue={post.content}
+          <input
+            type="text"
+            name="githubMdUrl"
             required
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl p-4 text-sm text-text focus:outline-none focus:border-accent font-sans"
+            defaultValue={post.sourceUrl || ""}
+            placeholder="https://github.com/user/repo/blob/main/README.md"
+            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent font-mono text-xs"
           />
+          <p className="text-[11px] text-text3">
+            Article content is always read live from this file — nothing is
+            saved to the database. Edit the file on GitHub to update the post.
+          </p>
         </div>
 
         {/* Options */}

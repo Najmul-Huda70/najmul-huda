@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 import "@/app/globals.css";
 import ContactSection from "@/components/pages/ContactSection";
 import { headers } from "next/headers";
-
+import "highlight.js/styles/github-dark.css";
 const serif = Newsreader({
   subsets: ["latin"],
   style: ["italic"],

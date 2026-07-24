@@ -1,32 +1,24 @@
 import type { ObjectId } from "mongodb";
 
-export type ProjectCategory = "web" | "app" | "client" | "opensource";
-export type ProjectStatus = "live" | "progress" | "archived";
-export type ProjectType = "personal" | "team";
+export type WorkCategory = string;
 
-export interface Repository {
-  id: string;
-  label: string;
-  url: string;
-}
+export type WorkStatus = "live" | "progress" | "archived";
+export type WorkType = "personal" | "team";
 
-export interface Project {
+export interface Work {
   _id: string;
-  slug: string;
   title: string;
-  status: ProjectStatus;
+  status: WorkStatus;
   year: number;
-  type: ProjectType;
-  category: ProjectCategory;
+  type: WorkType;
+  category: WorkCategory;
   short_description: string;
-  description: string;
   featured: boolean;
   tags: string[];
   image: string[];
-  repository: Repository[];
-  live: string;
   metricValue?: string;
   metricLabel?: string;
+  githubUrl?: string;
   [key: string]: any;
 }
 
@@ -70,8 +62,8 @@ export const SKILL_CATEGORY_LABELS: Record<SkillCategory, string> = {
 
 export interface SkillTag {
   _id?: string;
-  name: string;      
-  slug: string;      
+  name: string;
+  slug: string;
   category: SkillCategory;
   order?: number;
 }
@@ -87,7 +79,6 @@ export interface CategoryItem {
 
 export interface BlogPost {
   _id: string;
-  slug: string;
   title: string;
   category: string;
   excerpt: string;
@@ -98,6 +89,7 @@ export interface BlogPost {
   readTime?: string;
   published: boolean;
   featured?: boolean;
+  sourceUrl?: string;
 }
 
 export interface EducationItem {

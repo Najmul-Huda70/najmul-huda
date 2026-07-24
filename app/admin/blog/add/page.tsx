@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createBlogPost, getCategories } from "@/lib/action";
 import { ArrowLeft } from "lucide-react";
+import { ImageUploader } from "@/components/forms";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function AddBlogPage() {
     redirect("/");
   }
 
+  // getCategories must filter by { type: "blog" } in the DB layer — see lib/action.ts snippet
   const blogCategories = await getCategories("blog");
 
   return (
@@ -37,11 +39,14 @@ export default async function AddBlogPage() {
           Add New Blog Post.
         </h1>
         <p className="text-text2 text-xs sm:text-sm mt-1 font-sans">
-          Write and publish articles, notes, or technical tutorials.
+          Content is always pulled live from GitHub — nothing is stored here.
         </p>
       </div>
 
-      <form action={createBlogPost} className="space-y-6 bg-surface/30 border border-border/60 p-6 sm:p-8 rounded-2xl backdrop-blur-sm">
+      <form
+        action={createBlogPost}
+        className="space-y-6 bg-surface/30 border border-border/60 p-6 sm:p-8 rounded-2xl backdrop-blur-sm"
+      >
         {/* Title */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
@@ -56,19 +61,6 @@ export default async function AddBlogPage() {
           />
         </div>
 
-        {/* Slug */}
-        <div className="space-y-1.5">
-          <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Custom Slug (Optional)
-          </label>
-          <input
-            type="text"
-            name="slug"
-            placeholder="e.g. building-scalable-web-apps"
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent font-mono text-xs"
-          />
-        </div>
-
         {/* Category */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
@@ -79,10 +71,11 @@ export default async function AddBlogPage() {
             required
             className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent capitalize"
           >
-            <option value="tech">Tech & Engineering</option>
-            <option value="design">Design & UI/UX</option>
-            <option value="tutorial">Tutorial</option>
-            <option value="general">General & Thoughts</option>
+            <option value="" disabled>
+              {blogCategories.length
+                ? "Select a category"
+                : "No blog categories yet — add one in Atlas"}
+            </option>
             {blogCategories.map((cat: any) => (
               <option key={cat._id} value={cat.slug}>
                 {cat.label}
@@ -94,27 +87,23 @@ export default async function AddBlogPage() {
         {/* Excerpt */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Short Excerpt / Summary
+            Short Excerpt / Summary *
           </label>
           <textarea
             name="excerpt"
             rows={2}
+            required
             placeholder="Brief introduction displayed on article cards..."
             className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent"
           />
         </div>
 
-        {/* Cover Image URL */}
+        {/* Cover Image — single image, remove-then-add flow */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Cover Image URL (Optional)
+            Cover Image (Optional)
           </label>
-          <input
-            type="text"
-            name="coverImage"
-            placeholder="https://images.unsplash.com/photo-..."
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent"
-          />
+          <ImageUploader name="coverImage" />
         </div>
 
         {/* Read Time & Tags */}
@@ -144,18 +133,22 @@ export default async function AddBlogPage() {
           </div>
         </div>
 
-        {/* Content */}
+        {/* GitHub source — required, content always fetched live from here */}
         <div className="space-y-1.5">
           <label className="block font-mono text-xs text-text2 uppercase tracking-wider">
-            Article Content (Markdown supported) *
+            GitHub Markdown URL *
           </label>
-          <textarea
-            name="content"
-            rows={12}
+          <input
+            type="text"
+            name="githubMdUrl"
             required
-            placeholder="Write your article content here..."
-            className="w-full bg-surface2/40 border border-border/60 rounded-xl p-4 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent font-sans"
+            placeholder="https://github.com/user/repo/blob/main/README.md"
+            className="w-full bg-surface2/40 border border-border/60 rounded-xl px-4 py-2.5 text-sm text-text placeholder:text-text3 focus:outline-none focus:border-accent font-mono text-xs"
           />
+          <p className="text-[11px] text-text3">
+            Article content is always read live from this file — nothing is
+            saved to the database. Edit the file on GitHub to update the post.
+          </p>
         </div>
 
         {/* Options */}

@@ -40,6 +40,11 @@ const config: Config = {
       },
     },
   },
+   screens: {
+      xxs: "360px",
+      xs: "400px",
+    },
   plugins: [],
+ 
 };
 export default config;

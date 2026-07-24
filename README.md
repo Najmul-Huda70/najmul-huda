@@ -1,73 +1,84 @@
 # Najmul Huda — Portfolio
 
 Full-stack developer & competitive-programmer portfolio, built with Next.js
-(App Router) + TypeScript + Tailwind CSS + MongoDB  + JWT auth.
+(App Router) + TypeScript + Tailwind CSS + MongoDB + better-auth.
 
 ## Stack
 
-- **Frontend**: Next.js 16 App Router, TypeScript, Tailwind CSS, Recharts
-- **Backend**: Next.js Route Handlers (`app/api/**`), MongoDB native driver
-  with a singleton `MongoClient` (`lib/mongodb.ts`)
-- **Auth**: JWT sessions (`jose`) protecting write endpoints; structured so it
-  can be swapped for a full `better-auth()` instance later without touching
-  route handlers
-- **Data**: three collections — `projects`, `stats`, `timeline`
+- **Frontend**: Next.js 16 App Router, TypeScript, Tailwind CSS, Framer Motion, Recharts
+- **Backend**: Next.js Server Actions (`lib/action.ts`), MongoDB native driver
+- **Auth**: `better-auth` (`lib/auth.ts` / `lib/auth-client.ts`), mounted at `app/api/auth/[...all]/route.ts`
+- **Data collections**: `works`, `blogs`, `categories`, `tags`, `stats`,
+  `timeline`, `educations`, `skill_items`, `experiences`, `certificates`
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in MONGODB_URI, JWT_SECRET, ADMIN_EMAIL/PASSWORD
-npm run seed                  # populates MongoDB with starter content
+cp .env.example .env   # fill in MONGODB_URI, DB_NAME, BETTER_AUTH_SECRET, BETTER_AUTH_URL, etc.
 npm run dev
 ```
 
-Open http://localhost:3000.
-
-If MongoDB is unreachable or a collection is empty, every data-fetching
-component (`StatsGrid`, `TopProjects`, `JourneySection`, `/projects` page)
-falls back to the same content in `lib/fallback-data.ts`, so the site never
-renders blank during setup.
+Open http://localhost:3000. Sign up an account at `/signup`, then the admin
+console is available at `/admin` for any signed-in user.
 
 ## Project structure
 
 ```
 app/
-  layout.tsx              Root layout — fonts, ThemeProvider, Navbar, Footer
-  page.tsx                Homepage: Hero → Stats → About → TopProjects → Journey → Contact
-  globals.css             Theme CSS variables (dark/light) + base styles
-  projects/page.tsx        /projects — full searchable/filterable archive
-  api/
-    projects/route.ts      GET (public, ?featured=&category=) / POST (auth)
-    stats/route.ts         GET stat cards
-    timeline/route.ts       GET journey entries
-    auth/login/route.ts     POST — issues JWT session cookie
+  layout.tsx                 Root layout — fonts, ThemeProvider, Navbar, Footer
+  page.tsx                   Homepage: Hero → About → TopWork → Stats → Journey
+  globals.css                Theme CSS variables (dark/light) + base styles
+  work/
+    page.tsx                 /work — searchable/filterable work archive
+    [id]/page.tsx             /work/[id] — single project, README read live from GitHub
+  blog/
+    page.tsx                 /blog — searchable/filterable article archive
+    [id]/page.tsx             /blog/[id] — single article, content read live from GitHub
+  admin/
+    page.tsx                  /admin — tabbed console (Work, Blog, Categories, Resume)
+    work/add, work/edit/[id]   Add / edit a work project
+    blog/add, blog/edit/[id]   Add / edit a blog post
+  resume/, services/, login/, signup/
+  api/auth/[...all]/route.ts  better-auth route handler
 
-components/                One component per section/piece of UI
+components/
+  pages/                     Section + browser components (Hero, WorkBrowser, BlogBrowser, ...)
+  admin/                     Admin console tabs, lists, delete confirmations
+  forms/                     ImageUploader (ImgBB-backed)
+  layout/                    Navbar, Footer, Preloader
+  shared/, ui/               Reusable primitives (buttons, toggles, motion wrappers)
+
 lib/
-  mongodb.ts               MongoClient singleton (dev-HMR safe)
-  auth.ts                  JWT sign/verify + requireAuth guard
-  use-reveal.ts             IntersectionObserver hooks for scroll-reveal
-  fallback-data.ts          Seed-mirroring fallback content
-  site-config.ts            Name, socials, email — single source of truth
-models/types.ts             Shared TS interfaces for Mongo documents
-scripts/seed.ts              One-off DB seeding script (npm run seed)
+  auth.ts / auth-client.ts    better-auth server + client instances
+  action.ts                   All server actions: work/blog/category/resume CRUD
+  github-md.ts                GitHub blob → raw URL + markdown section extraction
+  site-config.ts              Name, socials, email — single source of truth
+
+models/types.ts               Shared TS interfaces for Mongo documents (Work, BlogPost, ...)
 ```
 
 ## Content model
 
-- `projects`: `{ slug, title, category: "web"|"cp"|"opensource", status,
-  year, type, metricValue, metricLabel, tags[], description, featured,
-  order }` — the homepage shows the 6 highest-priority `featured: true`
-  projects; `/projects` shows everything.
-- `stats`: `{ key, label, value, order }` — the 4 "by the numbers" cards.
-- `timeline`: `{ role, meta, heading, description, order }` — the journey
-  entries, rendered oldest → newest.
+- **Work** (`works` collection): `{ title, status, year, type, category,
+  short_description, featured, tags[], image[], metricValue?, metricLabel?,
+  githubUrl }` — the project's full write-up is read live from its GitHub
+  README (nothing is stored). The homepage shows `featured: true` works;
+  `/work` shows everything.
+- **BlogPost** (`blogs` collection): `{ title, category, excerpt, content,
+  coverImage?, tags[], publishedAt, readTime?, published, featured?,
+  sourceUrl }` — content is likewise pulled live from a GitHub markdown file.
+- **CategoryItem** (`categories` collection): `{ type: "work" | "blog",
+  label, slug, description?, order? }` — managed from the Admin ▸ Categories
+  tab and used to populate the category dropdowns/pills on both the admin
+  forms and the public Work/Blog browsers.
+- `stats`, `timeline`, `educations`, `skill_items`, `experiences`,
+  `certificates` — power the Resume page and homepage stats strip, all
+  editable from Admin ▸ Resume Items.
 
 ## Auth
 
-`POST /api/auth/login` checks the submitted email/password against
-`ADMIN_EMAIL`/`ADMIN_PASSWORD` and, if valid, sets an httpOnly JWT cookie.
-`requireAuth()` in `lib/auth.ts` guards mutation routes (e.g.
-`POST /api/projects`) — swap it out for `better-auth`'s session helpers if
-you outgrow the single-admin model.
+`better-auth` handles sessions; any account created via `/signup` can sign in
+and manage content from `/admin`. All mutating server actions in
+`lib/action.ts` call `requireAdmin()`, which checks for a valid session
+before writing to the database.

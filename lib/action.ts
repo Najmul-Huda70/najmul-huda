@@ -6,37 +6,35 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
-import type { Project, SkillTag } from "@/models/types";
+import type { Work, SkillTag } from "@/models/types";
+import { toRawGithubUrl, extractSection } from "@/lib/github-md";
 
 async function requireAdmin() {
   const reqHeaders = await headers();
   const session = await auth.api.getSession({ headers: reqHeaders });
-  
+
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
   return session.user;
 }
 
-export async function toggleFeatured(
-  projectId: string,
-  currentValue: boolean
-) {
+export async function toggleFeatured(workId: string, currentValue: boolean) {
   await requireAdmin();
 
-  if (!projectId) throw new Error("Missing project id");
+  if (!workId) throw new Error("Missing work id");
 
   await db
-    .collection("projects")
+    .collection("works")
     .updateOne(
-      { _id: new ObjectId(projectId) },
+      { _id: new ObjectId(workId) },
       { $set: { featured: !currentValue } }
     );
 
   revalidatePath("/admin");
 }
 
-function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
+function buildWorkFromForm(formData: FormData): Omit<Work, "_id"> {
   const tags = (formData.get("tags") as string)
     .split(",")
     .map((t) => t.trim())
@@ -47,14 +45,7 @@ function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
     .map((t) => t.trim())
     .filter(Boolean);
 
-  const repoLabels = formData.getAll("repoLabel") as string[];
-  const repoUrls = formData.getAll("repoUrl") as string[];
-  const repository = repoLabels
-    .map((label, i) => ({ id: String(i), label, url: repoUrls[i] }))
-    .filter((r) => r.label && r.url);
-
   return {
-    slug: formData.get("slug") as string,
     title: formData.get("title") as string,
     category: formData.get("category") as string,
     status: formData.get("status") as string,
@@ -64,45 +55,43 @@ function buildProjectFromForm(formData: FormData): Omit<Project, "_id"> {
     metricLabel: (formData.get("metricLabel") as string) || undefined,
     tags,
     short_description: formData.get("short_description") as string,
-    description: (formData.get("description") as string) || undefined,
     featured: formData.get("featured") === "on",
     image: images,
-    repository,
-    live: (formData.get("live") as string) || undefined,
-  } as Omit<Project, "_id">;
+    githubUrl: (formData.get("githubUrl") as string)?.trim() || undefined,
+  } as Omit<Work, "_id">;
 }
 
-export async function createProject(formData: FormData) {
+export async function createWork(formData: FormData) {
   await requireAdmin();
 
-  const project = buildProjectFromForm(formData);
+  const work = buildWorkFromForm(formData);
 
-  await db.collection<Project>("projects").insertOne(project as Project);
+  await db.collection<Work>("works").insertOne(work as Work);
 
   revalidatePath("/admin");
   redirect("/admin");
 }
 
-export async function updateProject(projectId: string, formData: FormData) {
+export async function updateWork(workId: string, formData: FormData) {
   await requireAdmin();
 
-  if (!projectId) throw new Error("Missing project id");
+  if (!workId) throw new Error("Missing work id");
 
-  const update = buildProjectFromForm(formData);
+  const update = buildWorkFromForm(formData);
 
   await db
-    .collection<Project>("projects")
-    .updateOne({ _id: new ObjectId(projectId) } as any, { $set: update });
+    .collection<Work>("works")
+    .updateOne({ _id: new ObjectId(workId) } as any, { $set: update });
 
   revalidatePath("/admin");
 }
 
-export async function deleteProject(projectId: string) {
+export async function deleteWork(workId: string) {
   await requireAdmin();
 
-  if (!projectId) throw new Error("Missing project id");
+  if (!workId) throw new Error("Missing work id");
 
-  await db.collection("projects").deleteOne({ _id: new ObjectId(projectId) });
+  await db.collection("works").deleteOne({ _id: new ObjectId(workId) });
 
   revalidatePath("/admin");
 }
@@ -149,19 +138,24 @@ export async function deleteSkillTag(id: string) {
   revalidatePath("/admin/skills");
 }
 
-export async function getProjectById(id: string): Promise<Project | null> {
+export async function getWorkById(id: string): Promise<Work | null> {
   try {
-    const project = await db
-      .collection("projects")
+    const work = await db
+      .collection("works")
       .findOne({ _id: new ObjectId(id) });
 
-    if (!project) return null;
+    if (!work) return null;
 
-    return JSON.parse(JSON.stringify(project)) as Project;
+    return JSON.parse(JSON.stringify(work)) as Work;
   } catch (err) {
-    console.error("[getProjectById] failed:", err);
+    console.error("[getWorkById] failed:", err);
     return null;
   }
+}
+
+export async function getWorks(publishedOnly = false): Promise<Work[]> {
+  const works = await db.collection("works").find().toArray();
+  return JSON.parse(JSON.stringify(works)) as Work[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -258,17 +252,6 @@ export async function getBlogPosts(publishedOnly = false) {
   }
 }
 
-export async function getBlogPostBySlug(slug: string) {
-  try {
-    const post = await db.collection("blogs").findOne({ slug });
-    if (!post) return null;
-    return JSON.parse(JSON.stringify(post));
-  } catch (err) {
-    console.error("[getBlogPostBySlug] failed:", err);
-    return null;
-  }
-}
-
 export async function getBlogPostById(id: string) {
   try {
     const post = await db.collection("blogs").findOne({ _id: new ObjectId(id) });
@@ -284,27 +267,40 @@ export async function createBlogPost(formData: FormData) {
   await requireAdmin();
 
   const title = (formData.get("title") as string)?.trim();
-  const slugInput = (formData.get("slug") as string)?.trim();
   const category = (formData.get("category") as string)?.trim();
   const excerpt = (formData.get("excerpt") as string)?.trim();
-  const content = (formData.get("content") as string)?.trim();
   const coverImage = (formData.get("coverImage") as string)?.trim();
   const readTime = (formData.get("readTime") as string)?.trim() || "5 min read";
   const published = formData.get("published") === "on" || formData.get("published") === "true";
   const featured = formData.get("featured") === "on" || formData.get("featured") === "true";
-  
+
   const tagsStr = (formData.get("tags") as string) || "";
   const tags = tagsStr.split(",").map((t) => t.trim()).filter(Boolean);
 
-  if (!title || !category || !content) {
-    throw new Error("Title, Category and Content are required");
+  const githubMdUrl = (formData.get("githubMdUrl") as string)?.trim();
+  const githubSection = (formData.get("githubSection") as string)?.trim();
+
+  if (!githubMdUrl) {
+    throw new Error("GitHub Markdown URL is required");
   }
 
-  const slug = slugInput || title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  let content: string;
+  try {
+    const rawUrl = toRawGithubUrl(githubMdUrl);
+    const res = await fetch(rawUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Could not fetch GitHub file (${res.status})`);
+    content = await res.text();
+    if (githubSection) content = extractSection(content, githubSection);
+  } catch (err) {
+    throw new Error(`GitHub import failed: ${(err as Error).message}`);
+  }
+
+  if (!title || !category || !content) {
+    throw new Error("Title, Category and GitHub content are required");
+  }
 
   await db.collection("blogs").insertOne({
     title,
-    slug,
     category,
     excerpt: excerpt || title,
     content,
@@ -313,6 +309,7 @@ export async function createBlogPost(formData: FormData) {
     readTime,
     published,
     featured,
+    sourceUrl: githubMdUrl,
     publishedAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   });
@@ -324,14 +321,11 @@ export async function createBlogPost(formData: FormData) {
 
 export async function updateBlogPost(id: string, formData: FormData) {
   await requireAdmin();
-
   if (!id) throw new Error("Missing blog id");
 
   const title = (formData.get("title") as string)?.trim();
-  const slugInput = (formData.get("slug") as string)?.trim();
   const category = (formData.get("category") as string)?.trim();
   const excerpt = (formData.get("excerpt") as string)?.trim();
-  const content = (formData.get("content") as string)?.trim();
   const coverImage = (formData.get("coverImage") as string)?.trim();
   const readTime = (formData.get("readTime") as string)?.trim() || "5 min read";
   const published = formData.get("published") === "on" || formData.get("published") === "true";
@@ -340,14 +334,33 @@ export async function updateBlogPost(id: string, formData: FormData) {
   const tagsStr = (formData.get("tags") as string) || "";
   const tags = tagsStr.split(",").map((t) => t.trim()).filter(Boolean);
 
-  const slug = slugInput || title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const githubMdUrl = (formData.get("githubMdUrl") as string)?.trim();
+  const githubSection = (formData.get("githubSection") as string)?.trim();
+
+  if (!githubMdUrl) {
+    throw new Error("GitHub Markdown URL is required");
+  }
+
+  let content: string;
+  try {
+    const rawUrl = toRawGithubUrl(githubMdUrl);
+    const res = await fetch(rawUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Could not fetch GitHub file (${res.status})`);
+    content = await res.text();
+    if (githubSection) content = extractSection(content, githubSection);
+  } catch (err) {
+    throw new Error(`GitHub import failed: ${(err as Error).message}`);
+  }
+
+  if (!title || !category || !content) {
+    throw new Error("Title, Category and GitHub content are required");
+  }
 
   await db.collection("blogs").updateOne(
     { _id: new ObjectId(id) },
     {
       $set: {
         title,
-        slug,
         category,
         excerpt,
         content,
@@ -356,6 +369,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
         readTime,
         published,
         featured,
+        sourceUrl: githubMdUrl,
         updatedAt: new Date().toISOString(),
       },
     }
@@ -386,10 +400,6 @@ export async function toggleBlogPublished(id: string, currentValue: boolean) {
   revalidatePath("/blog");
   revalidatePath("/admin");
 }
-
-/* -------------------------------------------------------------------------- */
-/* RESUME EDUCATION ACTIONS                                                   */
-/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* HOMEPAGE STATS ACTIONS (impact strip — "Case Study Editorial" theme)       */
@@ -694,7 +704,6 @@ export async function deleteExperience(id: string) {
 
 export async function getCertificates() {
   try {
-    // Sort latest certificate first (issueDate descending or createdAt descending)
     const items = await db
       .collection("certificates")
       .find()

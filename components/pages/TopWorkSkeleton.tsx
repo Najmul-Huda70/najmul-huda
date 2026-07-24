@@ -1,4 +1,4 @@
-export default function TopProjectsSkeleton() {
+export default function TopWorkSkeleton() {
   return (
     <section className="px-[6%] py-20 max-w-[1180px] mx-auto animate-pulse">
       <div className="h-3 w-28 rounded bg-surface2/40 mb-4" />

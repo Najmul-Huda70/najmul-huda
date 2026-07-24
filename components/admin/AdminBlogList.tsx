@@ -33,7 +33,7 @@ export default function AdminBlogList({ blogs }: { blogs: BlogPost[] }) {
         <div className="space-y-3 font-sans">
           {blogs.map((blog) => (
             <div
-              key={blog._id || blog.slug}
+              key={blog._id}
               className="bg-surface/30 border border-border/60 hover:border-accent/30 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors"
             >
               <div className="flex items-start gap-4 min-w-0">
@@ -64,7 +64,14 @@ export default function AdminBlogList({ blogs }: { blogs: BlogPost[] }) {
                   </div>
 
                   <h3 className="font-serif italic text-lg text-text truncate">
-                    {blog.title}
+                    <Link
+                      href={`/blog/${blog._id}`}
+                      target="_blank"
+                      className="hover:text-accent transition-colors"
+                      title="View live blog post"
+                    >
+                      {blog.title}
+                    </Link>
                   </h3>
 
                   <p className="text-text2 text-xs line-clamp-1 mt-0.5">

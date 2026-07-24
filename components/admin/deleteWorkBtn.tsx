@@ -1,20 +1,17 @@
 "use client";
+import { deleteWork } from "@/lib/action";
 import { useState, useEffect, useTransition } from "react";
 import { createPortal } from "react-dom";
 import toast from "react-hot-toast";
-import { deleteProject } from "@/lib/action";
 
-interface DeleteProjectBtnProps {
-  _id: string;
-  projectTitle: string;
-  onDeleted?: () => void; 
-}
 
-export default function DeleteProjectBtn2({
+export default function DeleteWorkBtn({
   _id,
   projectTitle,
-  onDeleted,
-}: DeleteProjectBtnProps) {
+}: {
+  _id: string;
+  projectTitle: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -24,11 +21,7 @@ export default function DeleteProjectBtn2({
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -37,12 +30,9 @@ export default function DeleteProjectBtn2({
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        await deleteProject(_id);
+        await deleteWork(_id);
         toast.success("Successfully deleted.");
         setIsOpen(false);
-        if (onDeleted) {
-          onDeleted(); 
-        }
       } catch (error) {
         console.error(error);
         toast.error("Failed to delete");
@@ -71,7 +61,6 @@ export default function DeleteProjectBtn2({
 
         <div className="flex items-center justify-center gap-3 w-full">
           <button
-            type="button"
             onClick={() => setIsOpen(false)}
             disabled={isPending}
             className="font-mono text-[11px] text-text2 hover:text-text border border-border px-5 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-50 min-w-[90px]"
@@ -79,7 +68,6 @@ export default function DeleteProjectBtn2({
             Cancel
           </button>
           <button
-            type="button"
             onClick={handleDelete}
             disabled={isPending}
             className="font-mono text-[11px] bg-primary text-primary-text hover:opacity-85 px-5 py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-50 min-w-[120px]"
@@ -94,12 +82,10 @@ export default function DeleteProjectBtn2({
   return (
     <>
       <button
-        type="button"
         onClick={() => setIsOpen(true)}
-        disabled={isPending}
-        className="px-6 py-3 rounded-full text-sm font-medium border border-border text-text2 hover:bg-surface2/60 hover:text-text transition-colors disabled:opacity-50 disabled:cursor-wait"
+        className="font-mono text-[11px] text-text2 hover:text-text border border-border hover:border-text/40 bg-surface2/40 px-3 py-1 rounded transition-all cursor-pointer"
       >
-        {isPending ? "Deleting..." : "Delete project"}
+        Delete
       </button>
 
       {isOpen && mounted && createPortal(modal, document.body)}

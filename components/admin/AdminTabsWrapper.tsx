@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import type {
-  Project,
   BlogPost,
   CategoryItem,
   EducationItem,
@@ -11,18 +10,19 @@ import type {
   ExperienceItem,
   CertificateItem,
   StatItem,
+  Work,
 } from "@/models/types";
 import FeaturedToggle from "@/components/shared/FeaturedToggle";
-import DeleteProjectBtn from "@/components/admin/DeleteProjectBtn";
 import AdminBlogList from "@/components/admin/AdminBlogList";
 import AdminCategories from "@/components/admin/AdminCategories";
 import AdminResume from "@/components/admin/AdminResume";
 import { FolderKanban, BookOpen, Tag, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AdminLinkBtn } from "@/components/ui/ActionBtn";
+import DeleteWorkBtn from "./deleteWorkBtn";
 
 interface AdminTabsWrapperProps {
-  projects: Project[];
+  works: Work[];
   blogs: BlogPost[];
   categories: CategoryItem[];
   educations: EducationItem[];
@@ -35,7 +35,7 @@ interface AdminTabsWrapperProps {
 type AdminTab = "work" | "blog" | "categories" | "resume";
 
 export default function AdminTabsWrapper({
-  projects,
+  works,
   blogs,
   categories,
   educations,
@@ -52,7 +52,7 @@ export default function AdminTabsWrapper({
     icon: React.ElementType;
     count?: number;
   }[] = [
-    { id: "work", label: "Work Projects", icon: FolderKanban, count: projects.length },
+    { id: "work", label: "Work Projects", icon: FolderKanban, count: works.length },
     { id: "blog", label: "Blog Posts", icon: BookOpen, count: blogs.length },
     { id: "categories", label: "Categories", icon: Tag, count: categories.length },
     {
@@ -127,16 +127,16 @@ export default function AdminTabsWrapper({
             >
               <div className="flex items-center justify-between border-b border-border/40 pb-4">
                 <p className="font-mono text-xs text-text3">
-                  Total Projects: {projects.length}
+                  Total Works: {works.length}
                 </p>
-                <AdminLinkBtn href="/admin/awf" label="Add Work" variant="pill" />
+                <AdminLinkBtn href="/admin/work/add" label="Add Work" variant="pill" />
               </div>
 
-              {projects.length === 0 ? (
+              {works.length === 0 ? (
                 <div className="py-16 sm:py-20 text-center border border-dashed border-border/40 rounded-2xl">
                   <p className="font-mono text-xs text-text3">[ 00 / 00 ]</p>
                   <h3 className="text-base text-text font-medium mt-2">
-                    No projects found in database
+                    No works   found in database
                   </h3>
                   <p className="text-xs text-text2 mt-1">
                     Click the button above to create your first build.
@@ -152,9 +152,9 @@ export default function AdminTabsWrapper({
                     <span className="text-right">Actions</span>
                   </div>
 
-                  {projects.map((project, index) => (
+                  {works.map((work, index) => (
                     <motion.div
-                      key={project._id || index}
+                      key={work._id || index}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.04 }}
@@ -163,10 +163,10 @@ export default function AdminTabsWrapper({
                       {/* Title + Thumbnail */}
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 shrink-0 rounded-lg bg-surface2 border border-border/60 overflow-hidden flex items-center justify-center">
-                          {project.image?.[0] ? (
+                          {work.image?.[0] ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                              src={project.image[0]}
+                              src={work.image[0]}
                               alt=""
                               className="w-full h-full object-cover"
                             />
@@ -175,53 +175,58 @@ export default function AdminTabsWrapper({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-text truncate text-sm sm:text-base">
-                            {project.title}
-                          </p>
+                          <Link
+                            href={`/work/${work._id}`}
+                            target="_blank"
+                            className="font-medium text-text hover:text-accent truncate text-sm sm:text-base block transition-colors"
+                            title="View live work page"
+                          >
+                            {work.title}
+                          </Link>
                           <p className="md:hidden text-[10px] text-text3 mt-0.5 font-mono capitalize">
-                            {project.category} · {project.year}
+                            {work.category} · {work.year}
                           </p>
                         </div>
                       </div>
 
                       <div className="hidden md:block text-text2 text-sm capitalize truncate">
-                        {project.category}
+                        {work.category}
                       </div>
 
                       <div className="hidden md:block text-text2 font-mono text-xs">
-                        {project.year}
+                        {work.year}
                       </div>
 
                       <div className="flex items-center justify-between md:justify-start gap-3 pl-[52px] md:pl-0">
                         <FeaturedToggle
-                          projectId={project?._id?.toString() || ""}
-                          featured={!!project.featured}
+                          projectId={work?._id?.toString() || ""}
+                          featured={!!work.featured}
                         />
 
                         <div className="flex items-center gap-2.5 md:hidden">
                           <Link
-                            href={`/admin/ew/${project._id || project.slug}`}
+                            href={`/admin/work/edit/${work._id}`}
                             className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
                           >
                             Edit
                           </Link>
-                          <DeleteProjectBtn
-                            _id={project?._id?.toString() || ""}
-                            projectTitle={project.title}
+                          <DeleteWorkBtn
+                            _id={work?._id?.toString() || ""}
+                            projectTitle={work.title}
                           />
                         </div>
                       </div>
 
                       <div className="hidden md:flex items-center justify-end gap-3">
                         <Link
-                          href={`/admin/ew/${project._id}`}
+                          href={`/admin/work/edit/${work._id}`}
                           className="font-mono text-[11px] text-text2 hover:text-accent border border-border/80 hover:border-accent/40 bg-surface/40 px-3 py-1 rounded transition-all"
                         >
                           Edit
                         </Link>
-                        <DeleteProjectBtn
-                          _id={project?._id?.toString() || ""}
-                          projectTitle={project.title}
+                        <DeleteWorkBtn
+                          _id={work?._id?.toString() || ""}
+                          projectTitle={work.title}
                         />
                       </div>
                     </motion.div>

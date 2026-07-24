@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import type { Project } from "@/models/types";
-import ProjectsBrowser from "@/components/pages/ProjectsBrowser";
-import { db } from "@/lib/auth";
+import { getWorks, getCategories } from "@/lib/action";
+import WorkBrowser from "@/components/pages/WorkBrowser";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
 export const metadata: Metadata = {
@@ -10,13 +9,15 @@ export const metadata: Metadata = {
     "A growing archive of full-stack apps, tools, and things I've built. Browse by category or search.",
 };
 
-export default async function ProjectsPage() {
-  const raw = await db
-    .collection<Project>("projects")
-    .find()
-    .sort({ year: -1 })
-    .toArray();
-  const projects: Project[] = JSON.parse(JSON.stringify(raw));
+export const dynamic = "force-dynamic";
+
+export default async function WorkPage() {
+  const [works, categories] = await Promise.all([
+    getWorks(),
+    getCategories("work"),
+  ]);
+
+  const sorted = [...works].sort((a, b) => (b.year || 0) - (a.year || 0));
 
   return (
     <section className="px-[6%] py-16 max-w-[1180px] mx-auto">
@@ -25,7 +26,7 @@ export default async function ProjectsPage() {
         title="All the work."
         subtitle="A growing archive of full-stack apps, tools, and things I've built while learning. Browse by category, or search."
       />
-      <ProjectsBrowser projects={projects} />
+      <WorkBrowser works={sorted} categories={categories} />
     </section>
   );
 }

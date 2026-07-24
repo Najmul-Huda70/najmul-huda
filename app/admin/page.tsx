@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { auth, db } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import {
+  getWorks,
   getBlogPosts,
   getCategories,
   getEducations,
@@ -11,7 +12,6 @@ import {
   getStatItems,
 } from "@/lib/action";
 import AdminTabsWrapper from "@/components/admin/AdminTabsWrapper";
-import type { Project } from "@/models/types";
 
 export const dynamic = "force-dynamic";
 
@@ -25,15 +25,9 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const rawProjects = await db
-    .collection<Project>("projects")
-    .find()
-    .sort({ year: -1 })
-    .toArray();
-  const projects: Project[] = JSON.parse(JSON.stringify(rawProjects));
-
-  const [blogs, categories, educations, skills, experiences, certificates, stats] =
+  const [works, blogs, categories, educations, skills, experiences, certificates, stats] =
     await Promise.all([
+      getWorks(),
       getBlogPosts(false),
       getCategories(),
       getEducations(),
@@ -42,6 +36,8 @@ export default async function AdminPage() {
       getCertificates(),
       getStatItems(),
     ]);
+
+  const sortedWorks = [...works].sort((a, b) => (b.year || 0) - (a.year || 0));
 
   return (
     <section className="px-5 sm:px-[6%] py-14 sm:py-16 max-w-[1180px] mx-auto min-h-[85vh]">
@@ -62,7 +58,7 @@ export default async function AdminPage() {
 
       {/* Admin Tabs */}
       <AdminTabsWrapper
-        projects={projects}
+        works={sortedWorks}
         blogs={blogs}
         categories={categories}
         educations={educations}
